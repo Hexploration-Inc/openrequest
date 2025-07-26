@@ -216,6 +216,74 @@ impl Database {
         Ok(collections)
     }
 
+    // 🎓 TEACHING: This function updates an existing collection in the database.
+    pub async fn update_collection(&self, collection: Collection) -> Result<Collection> {
+        let now = Utc::now();
+        let updated_collection = Collection {
+            updated_at: now,
+            ..collection
+        };
+
+        sqlx::query(
+            r#"
+            UPDATE collections
+            SET name = ?, description = ?, parent_id = ?, updated_at = ?
+            WHERE id = ?
+            "#,
+        )
+        .bind(&updated_collection.name)
+        .bind(&updated_collection.description)
+        .bind(&updated_collection.parent_id)
+        .bind(updated_collection.updated_at.to_rfc3339())
+        .bind(&updated_collection.id)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(updated_collection)
+    }
+
+    // 🎓 TEACHING: This function deletes a collection from the database.
+    // It takes the `id` of the collection to be deleted as input.
+    // It also deletes all the requests associated with this collection.
+    pub async fn delete_collection(&self, id: &str) -> Result<()> {
+        // First, delete all requests in the collection
+        sqlx::query("DELETE FROM requests WHERE collection_id = ?")
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        // Then, delete the collection itself
+        sqlx::query("DELETE FROM collections WHERE id = ?")
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    // 🎓 TEACHING: This function retrieves a single collection from the database by its ID.
+    pub async fn get_collection_by_id(&self, id: &str) -> Result<Option<Collection>> {
+        let row = sqlx::query("SELECT * FROM collections WHERE id = ?")
+            .bind(id)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        if let Some(row) = row {
+            Ok(Some(Collection {
+                id: row.get("id"),
+                name: row.get("name"),
+                description: row.get("description"),
+                parent_id: row.get("parent_id"),
+                created_at: DateTime::parse_from_rfc3339(&row.get::<String, _>("created_at"))?
+                    .with_timezone(&Utc),
+                updated_at: DateTime::parse_from_rfc3339(&row.get::<String, _>("updated_at"))?
+                    .with_timezone(&Utc),
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
     // Create a new request
     pub async fn create_request(
         &self,
@@ -294,5 +362,83 @@ impl Database {
         }
 
         Ok(requests)
+    }
+
+    // 🎓 TEACHING: This function updates an existing request in the database.
+    // It takes a `Request` struct as input, which contains the new data.
+    // The `id` field of the `Request` struct is used to identify the request to be updated.
+    // We also update the `updated_at` timestamp to the current time.
+    pub async fn update_request(&self, request: Request) -> Result<Request> {
+        let now = Utc::now();
+        let updated_request = Request {
+            updated_at: now,
+            ..request
+        };
+
+        sqlx::query(
+            r#"
+            UPDATE requests
+            SET collection_id = ?, name = ?, method = ?, url = ?, params = ?, headers = ?, body_type = ?, body_str = ?, auth_type = ?, auth_data = ?, updated_at = ?
+            WHERE id = ?
+            "#,
+        )
+        .bind(&updated_request.collection_id)
+        .bind(&updated_request.name)
+        .bind(&updated_request.method)
+        .bind(&updated_request.url)
+        .bind(&updated_request.params)
+        .bind(&updated_request.headers)
+        .bind(&updated_request.body_type)
+        .bind(&updated_request.body_str)
+        .bind(&updated_request.auth_type)
+        .bind(&updated_request.auth_data)
+        .bind(updated_request.updated_at.to_rfc3339())
+        .bind(&updated_request.id)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(updated_request)
+    }
+
+    // 🎓 TEACHING: This function deletes a request from the database.
+    // It takes the `id` of the request to be deleted as input.
+    pub async fn delete_request(&self, id: &str) -> Result<()> {
+        sqlx::query("DELETE FROM requests WHERE id = ?")
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    // 🎓 TEACHING: This function retrieves a single request from the database by its ID.
+    // It takes the `id` of the request to be retrieved as input.
+    pub async fn get_request_by_id(&self, id: &str) -> Result<Option<Request>> {
+        let row = sqlx::query("SELECT * FROM requests WHERE id = ?")
+            .bind(id)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        if let Some(row) = row {
+            Ok(Some(Request {
+                id: row.get("id"),
+                collection_id: row.get("collection_id"),
+                name: row.get("name"),
+                method: row.get("method"),
+                url: row.get("url"),
+                params: row.get("params"),
+                headers: row.get("headers"),
+                body_type: row.get("body_type"),
+                body_str: row.get("body_str"),
+                auth_type: row.get("auth_type"),
+                auth_data: row.get("auth_data"),
+                created_at: DateTime::parse_from_rfc3339(&row.get::<String, _>("created_at"))?
+                    .with_timezone(&Utc),
+                updated_at: DateTime::parse_from_rfc3339(&row.get::<String, _>("updated_at"))?
+                    .with_timezone(&Utc),
+            }))
+        } else {
+            Ok(None)
+        }
     }
 }

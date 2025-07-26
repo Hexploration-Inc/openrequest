@@ -18,6 +18,8 @@ struct ApiRequest {
     params: HashMap<String, String>,
     headers: HashMap<String, String>,
     body: Option<String>,
+    auth_type: Option<String>,
+    auth_data: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -46,6 +48,46 @@ async fn send_api_request(request: ApiRequest) -> Result<ApiResponse, String> {
 
     for (key, value) in request.headers {
         req_builder = req_builder.header(&key, &value);
+    }
+
+    if let Some(auth_type) = request.auth_type {
+        match auth_type.as_str() {
+            "basic" => {
+                if let Some(auth_data) = request.auth_data {
+                    // 🎓 TEACHING: For Basic Auth, we expect a JSON string with "username" and "password" fields.
+                    // We need to parse this JSON and then apply the basic authentication to the request.
+                    let auth: HashMap<String, String> = serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
+                    let username = auth.get("username").ok_or("Username not found in auth_data")?;
+                    let password = auth.get("password").ok_or("Password not found in auth_data")?;
+                    req_builder = req_builder.basic_auth(username, Some(password));
+                }
+            }
+            "bearer" => {
+                if let Some(auth_data) = request.auth_data {
+                    // 🎓 TEACHING: For Bearer Auth, we expect the token to be in the "token" field of the JSON string.
+                    let auth: HashMap<String, String> = serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
+                    let token = auth.get("token").ok_or("Token not found in auth_data")?;
+                    req_builder = req_builder.bearer_auth(token);
+                }
+            }
+            "api-key" => {
+                if let Some(auth_data) = request.auth_data {
+                    // 🎓 TEACHING: For API Key Auth, we expect "key", "value", and "in" fields.
+                    // The "in" field can be either "header" or "query".
+                    let auth: HashMap<String, String> = serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
+                    let key = auth.get("key").ok_or("Key not found in auth_data")?;
+                    let value = auth.get("value").ok_or("Value not found in auth_data")?;
+                    let in_ = auth.get("in").ok_or("In not found in auth_data")?;
+
+                    if in_ == "header" {
+                        req_builder = req_builder.header(key, value);
+                    } else if in_ == "query" {
+                        req_builder = req_builder.query(&[(key, value)]);
+                    }
+                }
+            }
+            _ => {} // No other auth types are supported yet
+        }
     }
 
     if let Some(body) = request.body {
@@ -131,6 +173,45 @@ async fn get_collections(
 }
 
 #[tauri::command]
+async fn update_collection(
+    collection: database::Collection,
+    db_state: State<'_, DatabaseState>,
+) -> Result<database::Collection, String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    db.update_collection(collection).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn delete_collection(
+    id: String,
+    db_state: State<'_, DatabaseState>,
+) -> Result<(), String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    db.delete_collection(&id).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn get_collection_by_id(
+    id: String,
+    db_state: State<'_, DatabaseState>,
+) -> Result<Option<database::Collection>, String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    db.get_collection_by_id(&id).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn create_request(
     collection_id: String,
     name: String,
@@ -163,6 +244,45 @@ async fn get_requests_by_collection(
         .map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn update_request(
+    request: database::Request,
+    db_state: State<'_, DatabaseState>,
+) -> Result<database::Request, String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    db.update_request(request).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn delete_request(
+    id: String,
+    db_state: State<'_, DatabaseState>,
+) -> Result<(), String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    db.delete_request(&id).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn get_request_by_id(
+    id: String,
+    db_state: State<'_, DatabaseState>,
+) -> Result<Option<database::Request>, String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    db.get_request_by_id(&id).await.map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -172,8 +292,14 @@ pub fn run() {
             init_database,
             create_collection,
             get_collections,
+            update_collection,
+            delete_collection,
+            get_collection_by_id,
             create_request,
             get_requests_by_collection,
+            update_request,
+            delete_request,
+            get_request_by_id,
             send_api_request
         ])
         .run(tauri::generate_context!())
@@ -203,6 +329,8 @@ mod tests {
             params,
             headers,
             body: None,
+            auth_type: None,
+            auth_data: None,
         };
 
         // 2. Execute: Call our command function directly
@@ -222,6 +350,152 @@ mod tests {
             assert!(response.body.contains("gemini-test"));
             assert!(response.body.contains("param1"));
             assert!(response.body.contains("value with spaces"));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_send_api_request_bearer_auth() {
+        // 1. Setup: Create a mock request with Bearer Token authentication
+        let mut headers = HashMap::new();
+        headers.insert("Content-Type".to_string(), "application/json".to_string());
+
+        let mut auth_data = HashMap::new();
+        auth_data.insert("token".to_string(), "my-secret-token".to_string());
+
+        let api_request = ApiRequest {
+            method: "GET".to_string(),
+            url: "https://httpbin.org/bearer".to_string(),
+            params: HashMap::new(),
+            headers,
+            body: None,
+            auth_type: Some("bearer".to_string()),
+            auth_data: Some(serde_json::to_string(&auth_data).unwrap()),
+        };
+
+        // 2. Execute: Call our command function directly
+        let result = send_api_request(api_request).await;
+
+        // 3. Assert & Verify: Check if the call was successful and print the output
+        assert!(result.is_ok(), "The API request failed: {:?}", result.err());
+
+        if let Ok(response) = result {
+            println!("✅ API Request Successful!");
+            println!("   Status: {}", response.status);
+            println!("   Headers: {:#?}", response.headers);
+            println!("   Body: {}", response.body);
+
+            // You can also add specific assertions here, for example:
+            assert_eq!(response.status, 200);
+            assert!(response.body.contains("my-secret-token"));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_send_api_request_basic_auth() {
+        // 1. Setup: Create a mock request with Basic authentication
+        let mut auth_data = HashMap::new();
+        auth_data.insert("username".to_string(), "testuser".to_string());
+        auth_data.insert("password".to_string(), "testpass".to_string());
+
+        let api_request = ApiRequest {
+            method: "GET".to_string(),
+            // This httpbin endpoint validates the user/pass in the URL
+            url: "https://httpbin.org/basic-auth/testuser/testpass".to_string(),
+            params: HashMap::new(),
+            headers: HashMap::new(),
+            body: None,
+            auth_type: Some("basic".to_string()),
+            auth_data: Some(serde_json::to_string(&auth_data).unwrap()),
+        };
+
+        // 2. Execute
+        let result = send_api_request(api_request).await;
+
+        // 3. Assert & Verify
+        assert!(result.is_ok(), "The API request failed: {:?}", result.err());
+
+        if let Ok(response) = result {
+            println!("✅ Basic Auth Request Successful!");
+            println!("   Status: {}", response.status);
+            println!("   Body: {}", response.body);
+
+            // httpbin returns 200 OK for successful basic auth
+            assert_eq!(response.status, 200);
+            // The response body confirms authentication
+            assert!(response.body.contains("\"authenticated\": true"));
+            assert!(response.body.contains("\"user\": \"testuser\""));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_send_api_request_api_key_header() {
+        // 1. Setup: API Key in Header
+        let mut auth_data = HashMap::new();
+        auth_data.insert("key".to_string(), "X-Api-Key".to_string());
+        auth_data.insert("value".to_string(), "my-secret-api-key".to_string());
+        auth_data.insert("in".to_string(), "header".to_string());
+
+        let api_request = ApiRequest {
+            method: "GET".to_string(),
+            url: "https://httpbin.org/headers".to_string(),
+            params: HashMap::new(),
+            headers: HashMap::new(),
+            body: None,
+            auth_type: Some("api-key".to_string()),
+            auth_data: Some(serde_json::to_string(&auth_data).unwrap()),
+        };
+
+        // 2. Execute
+        let result = send_api_request(api_request).await;
+
+        // 3. Assert & Verify
+        assert!(result.is_ok(), "The API request failed: {:?}", result.err());
+
+        if let Ok(response) = result {
+            println!("✅ API Key (Header) Request Successful!");
+            println!("   Status: {}", response.status);
+            println!("   Body: {}", response.body);
+
+            assert_eq!(response.status, 200);
+            // httpbin.org/headers echoes the request headers back.
+            // We check if our API key is in the response body.
+            assert!(response.body.contains("\"X-Api-Key\": \"my-secret-api-key\""));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_send_api_request_api_key_query() {
+        // 1. Setup: API Key in Query Params
+        let mut auth_data = HashMap::new();
+        auth_data.insert("key".to_string(), "api_key".to_string());
+        auth_data.insert("value".to_string(), "my-secret-api-key".to_string());
+        auth_data.insert("in".to_string(), "query".to_string());
+
+        let api_request = ApiRequest {
+            method: "GET".to_string(),
+            url: "https://httpbin.org/get".to_string(),
+            params: HashMap::new(),
+            headers: HashMap::new(),
+            body: None,
+            auth_type: Some("api-key".to_string()),
+            auth_data: Some(serde_json::to_string(&auth_data).unwrap()),
+        };
+
+        // 2. Execute
+        let result = send_api_request(api_request).await;
+
+        // 3. Assert & Verify
+        assert!(result.is_ok(), "The API request failed: {:?}", result.err());
+
+        if let Ok(response) = result {
+            println!("✅ API Key (Query) Request Successful!");
+            println!("   Status: {}", response.status);
+            println!("   Body: {}", response.body);
+
+            assert_eq!(response.status, 200);
+            // httpbin.org/get echoes the request args back.
+            // We check if our API key is in the response body's "args".
+            assert!(response.body.contains("\"api_key\": \"my-secret-api-key\""));
         }
     }
 }
