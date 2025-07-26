@@ -15,6 +15,7 @@ type DatabaseState = Mutex<Option<Database>>;
 struct ApiRequest {
     method: String,
     url: String,
+    params: HashMap<String, String>,
     headers: HashMap<String, String>,
     body: Option<String>,
 }
@@ -41,7 +42,7 @@ async fn send_api_request(request: ApiRequest) -> Result<ApiResponse, String> {
         _ => return Err("Unsupported HTTP method".to_string()),
     };
 
-    let mut req_builder = client.request(method, &request.url);
+    let mut req_builder = client.request(method, &request.url).query(&request.params);
 
     for (key, value) in request.headers {
         req_builder = req_builder.header(&key, &value);
@@ -192,9 +193,14 @@ mod tests {
         let mut headers = HashMap::new();
         headers.insert("X-Test-Header".to_string(), "gemini-test".to_string());
 
+        let mut params = HashMap::new();
+        params.insert("param1".to_string(), "value1".to_string());
+        params.insert("param2".to_string(), "value with spaces".to_string());
+
         let api_request = ApiRequest {
             method: "GET".to_string(),
             url: "https://httpbin.org/get".to_string(),
+            params,
             headers,
             body: None,
         };
@@ -214,6 +220,8 @@ mod tests {
             // You can also add specific assertions here, for example:
             assert_eq!(response.status, 200);
             assert!(response.body.contains("gemini-test"));
+            assert!(response.body.contains("param1"));
+            assert!(response.body.contains("value with spaces"));
         }
     }
 }
