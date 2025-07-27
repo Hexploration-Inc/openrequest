@@ -5,6 +5,7 @@ use tauri::State;
 
 // Import our database module
 mod database;
+mod importer_exporter;
 use database::Database;
 
 // 🎓 TEACHING: This is our application state
@@ -56,16 +57,22 @@ async fn send_api_request(request: ApiRequest) -> Result<ApiResponse, String> {
                 if let Some(auth_data) = request.auth_data {
                     // 🎓 TEACHING: For Basic Auth, we expect a JSON string with "username" and "password" fields.
                     // We need to parse this JSON and then apply the basic authentication to the request.
-                    let auth: HashMap<String, String> = serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
-                    let username = auth.get("username").ok_or("Username not found in auth_data")?;
-                    let password = auth.get("password").ok_or("Password not found in auth_data")?;
+                    let auth: HashMap<String, String> =
+                        serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
+                    let username = auth
+                        .get("username")
+                        .ok_or("Username not found in auth_data")?;
+                    let password = auth
+                        .get("password")
+                        .ok_or("Password not found in auth_data")?;
                     req_builder = req_builder.basic_auth(username, Some(password));
                 }
             }
             "bearer" => {
                 if let Some(auth_data) = request.auth_data {
                     // 🎓 TEACHING: For Bearer Auth, we expect the token to be in the "token" field of the JSON string.
-                    let auth: HashMap<String, String> = serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
+                    let auth: HashMap<String, String> =
+                        serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
                     let token = auth.get("token").ok_or("Token not found in auth_data")?;
                     req_builder = req_builder.bearer_auth(token);
                 }
@@ -74,7 +81,8 @@ async fn send_api_request(request: ApiRequest) -> Result<ApiResponse, String> {
                 if let Some(auth_data) = request.auth_data {
                     // 🎓 TEACHING: For API Key Auth, we expect "key", "value", and "in" fields.
                     // The "in" field can be either "header" or "query".
-                    let auth: HashMap<String, String> = serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
+                    let auth: HashMap<String, String> =
+                        serde_json::from_str(&auth_data).map_err(|e| e.to_string())?;
                     let key = auth.get("key").ok_or("Key not found in auth_data")?;
                     let value = auth.get("value").ok_or("Value not found in auth_data")?;
                     let in_ = auth.get("in").ok_or("In not found in auth_data")?;
@@ -182,14 +190,13 @@ async fn update_collection(
         db_guard.as_ref().ok_or("Database not initialized")?.clone()
     };
 
-    db.update_collection(collection).await.map_err(|e| e.to_string())
+    db.update_collection(collection)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn delete_collection(
-    id: String,
-    db_state: State<'_, DatabaseState>,
-) -> Result<(), String> {
+async fn delete_collection(id: String, db_state: State<'_, DatabaseState>) -> Result<(), String> {
     let db = {
         let db_guard = db_state.lock().unwrap();
         db_guard.as_ref().ok_or("Database not initialized")?.clone()
@@ -208,7 +215,9 @@ async fn get_collection_by_id(
         db_guard.as_ref().ok_or("Database not initialized")?.clone()
     };
 
-    db.get_collection_by_id(&id).await.map_err(|e| e.to_string())
+    db.get_collection_by_id(&id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -258,10 +267,7 @@ async fn update_request(
 }
 
 #[tauri::command]
-async fn delete_request(
-    id: String,
-    db_state: State<'_, DatabaseState>,
-) -> Result<(), String> {
+async fn delete_request(id: String, db_state: State<'_, DatabaseState>) -> Result<(), String> {
     let db = {
         let db_guard = db_state.lock().unwrap();
         db_guard.as_ref().ok_or("Database not initialized")?.clone()
@@ -283,6 +289,104 @@ async fn get_request_by_id(
     db.get_request_by_id(&id).await.map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn export_collection_to_json(
+    collection_id: String,
+    db_state: State<'_, DatabaseState>,
+) -> Result<String, String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    // 1. Fetch the collection from the database
+    let collection = db
+        .get_collection_by_id(&collection_id)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| "Collection not found".to_string())?;
+
+    // 2. Fetch all requests for that collection
+    let requests = db
+        .get_requests_by_collection(&collection_id)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // 3. Convert database requests to JSON requests
+    let json_requests = requests
+        .into_iter()
+        .map(|req| importer_exporter::JsonRequest {
+            name: req.name,
+            method: req.method,
+            url: req.url,
+            params: req.params,
+            headers: req.headers,
+            body_type: req.body_type,
+            body_str: req.body_str,
+            auth_type: req.auth_type,
+            auth_data: req.auth_data,
+        })
+        .collect();
+
+    // 4. Create the final JSON collection structure
+    let json_collection = importer_exporter::JsonCollection {
+        name: collection.name,
+        description: collection.description,
+        requests: json_requests,
+    };
+
+    // 5. Serialize the structure to a JSON string
+    serde_json::to_string_pretty(&json_collection).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn import_collection_from_json(
+    json_str: String,
+    db_state: State<'_, DatabaseState>,
+) -> Result<database::Collection, String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    // 1. Deserialize the JSON string into our import structure
+    let json_collection: importer_exporter::JsonCollection =
+        serde_json::from_str(&json_str).map_err(|e| e.to_string())?;
+
+    // 2. Create the new collection in the database
+    let new_collection = db
+        .create_collection(json_collection.name, json_collection.description, None)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // 3. Iterate over the requests from the JSON and create them
+    for json_req in json_collection.requests {
+        let mut new_req = db
+            .create_request(
+                new_collection.id.clone(),
+                json_req.name,
+                json_req.method,
+                json_req.url,
+            )
+            .await
+            .map_err(|e| e.to_string())?;
+
+        // 4. Update the request with the additional details from the JSON
+        new_req.params = json_req.params;
+        new_req.headers = json_req.headers;
+        new_req.body_type = json_req.body_type;
+        new_req.body_str = json_req.body_str;
+        new_req.auth_type = json_req.auth_type;
+        new_req.auth_data = json_req.auth_data;
+
+        db.update_request(new_req)
+            .await
+            .map_err(|e| e.to_string())?;
+    }
+
+    Ok(new_collection)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -300,7 +404,9 @@ pub fn run() {
             update_request,
             delete_request,
             get_request_by_id,
-            send_api_request
+            send_api_request,
+            export_collection_to_json,
+            import_collection_from_json
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -459,7 +565,9 @@ mod tests {
             assert_eq!(response.status, 200);
             // httpbin.org/headers echoes the request headers back.
             // We check if our API key is in the response body.
-            assert!(response.body.contains("\"X-Api-Key\": \"my-secret-api-key\""));
+            assert!(response
+                .body
+                .contains("\"X-Api-Key\": \"my-secret-api-key\""));
         }
     }
 

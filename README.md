@@ -91,16 +91,16 @@ Our backend, written in Rust, currently supports the following features for maki
 - [x] **Core HTTP Client**
   - [x] HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
   - [x] Query parameters editor
-- [ ] **Local Storage System**
+- [x] **Local Storage System**
   - [x] Database schema design
-  - [ ] CRUD operations for requests
-  - [ ] Data persistence layer
-  - [ ] Basic import/export (JSON)
-- [ ] **Authentication**
-  - [ ] No Auth
-  - [ ] Bearer Token
-  - [ ] Basic Auth
-  - [ ] API Key (header/query param)
+  - [x] CRUD operations for requests
+  - [x] Data persistence layer
+  - [x] Basic import/export (JSON)
+- [x] **Authentication**
+  - [x] No Auth
+  - [x] Bearer Token
+  - [x] Basic Auth
+  - [x] API Key (header/query param)
 
 ---
 
