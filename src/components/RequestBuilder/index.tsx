@@ -2,6 +2,7 @@ import { useTabsStore } from "../../lib/stores/tabs";
 import { useCollectionsStore } from "../../lib/stores/collections";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Select } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Send, Loader2, Save } from "lucide-react";
 import { HttpMethod } from "../../lib/types";
@@ -13,6 +14,11 @@ import { invoke } from '@tauri-apps/api/core';
 import { ApiResponse } from "../../lib/types";
 
 const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
+
+const HTTP_METHOD_OPTIONS = HTTP_METHODS.map(method => ({ 
+  value: method, 
+  label: method 
+}));
 
 export function RequestBuilder() {
   const { getActiveTab, updateTabData, markTabAsUnsaved, markTabAsSaved } = useTabsStore();
@@ -166,27 +172,24 @@ export function RequestBuilder() {
       <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
         <div className="flex gap-3 items-center">
           {/* Method Selector */}
-          <select
-            value={activeTab.method}
-            onChange={(e) => {
-              updateTabData(activeTab.id, { method: e.target.value as HttpMethod });
-              markTabAsUnsaved(activeTab.id);
-            }}
-            className={`px-3 py-2 border-0 rounded-md text-sm font-semibold min-w-[90px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              activeTab.method === 'GET' ? 'bg-green-100 text-green-800' :
-              activeTab.method === 'POST' ? 'bg-blue-100 text-blue-800' :
-              activeTab.method === 'PUT' ? 'bg-orange-100 text-orange-800' :
-              activeTab.method === 'DELETE' ? 'bg-red-100 text-red-800' :
-              activeTab.method === 'PATCH' ? 'bg-purple-100 text-purple-800' :
-              'bg-gray-100 text-gray-800'
-            }`}
-          >
-            {HTTP_METHODS.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
+          <div className="min-w-[90px]">
+            <Select
+              value={activeTab.method}
+              onValueChange={(value) => {
+                updateTabData(activeTab.id, { method: value as HttpMethod });
+                markTabAsUnsaved(activeTab.id);
+              }}
+              options={HTTP_METHOD_OPTIONS}
+              className={`text-sm font-semibold ${
+                activeTab.method === 'GET' ? '[&>button]:bg-green-100 [&>button]:text-green-800 [&>button]:border-green-200' :
+                activeTab.method === 'POST' ? '[&>button]:bg-blue-100 [&>button]:text-blue-800 [&>button]:border-blue-200' :
+                activeTab.method === 'PUT' ? '[&>button]:bg-orange-100 [&>button]:text-orange-800 [&>button]:border-orange-200' :
+                activeTab.method === 'DELETE' ? '[&>button]:bg-red-100 [&>button]:text-red-800 [&>button]:border-red-200' :
+                activeTab.method === 'PATCH' ? '[&>button]:bg-purple-100 [&>button]:text-purple-800 [&>button]:border-purple-200' :
+                '[&>button]:bg-gray-100 [&>button]:text-gray-800 [&>button]:border-gray-200'
+              }`}
+            />
+          </div>
 
           {/* URL Input */}
           <div className="flex-1 relative">

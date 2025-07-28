@@ -1,6 +1,7 @@
 import { useTabsStore } from "../../lib/stores/tabs";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Select } from "../ui/select";
 import { AuthConfig } from "../../lib/types";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
@@ -129,14 +130,15 @@ export function AuthTab({ tabId }: AuthTabProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Add to
                 </label>
-                <select
+                <Select
                   value={activeTab.auth.data.in || "header"}
-                  onChange={(e) => updateAuthData("in", e.target.value)}
-                  className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 bg-white"
-                >
-                  <option value="header">Header</option>
-                  <option value="query">Query Params</option>
-                </select>
+                  onValueChange={(value) => updateAuthData("in", value)}
+                  options={[
+                    { value: "header", label: "Header" },
+                    { value: "query", label: "Query Params" }
+                  ]}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
