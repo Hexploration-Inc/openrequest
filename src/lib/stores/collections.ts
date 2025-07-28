@@ -56,7 +56,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
       await invoke("create_collection", {
         name,
         description: description || null,
-        parentId: null,
+        parent_id: null,
       });
       await get().loadCollections();
     } catch (error) {
@@ -75,7 +75,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
   loadRequestsForCollection: async (collectionId: string) => {
     try {
       const requests = await invoke<Request[]>("get_requests_by_collection", {
-        collectionId,
+        collection_id: collectionId,
       });
       set({ requests });
     } catch (error) {
@@ -88,7 +88,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
   createRequest: async (collectionId: string, name: string, method: string, url: string) => {
     try {
       await invoke("create_request", {
-        collectionId,
+        collection_id: collectionId,
         name,
         method,
         url,
