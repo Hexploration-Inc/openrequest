@@ -155,10 +155,10 @@ export function AuthTab({ tabId }: AuthTabProps) {
 
   return (
     <div className="h-full bg-white flex flex-col overflow-hidden">
-      {/* Auth Type Selection */}
-      <div className="flex-shrink-0 px-3 sm:px-6 py-4 border-b border-gray-200">
+      {/* Auth Type Selection - Compact */}
+      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200">
         <div className="flex items-center gap-4 flex-wrap">
-          <label className="text-sm font-medium text-gray-700">Type</label>
+          <label className="text-sm font-medium text-gray-600">Type</label>
           
           {/* Auth Type Dropdown */}
           <div className="relative">
@@ -189,8 +189,8 @@ export function AuthTab({ tabId }: AuthTabProps) {
         </div>
       </div>
 
-      {/* Auth Configuration Form */}
-      <div className="flex-1 p-3 sm:p-6 min-h-0 overflow-y-auto">
+      {/* Auth Configuration Form - Compact */}
+      <div className="flex-1 p-4 min-h-0 overflow-y-auto">
         {renderAuthForm()}
       </div>
 

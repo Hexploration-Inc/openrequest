@@ -75,10 +75,10 @@ export function HeadersTab({ tabId }: HeadersTabProps) {
 
   return (
     <div className="h-full bg-white flex flex-col overflow-hidden">
-      {/* Quick Add Headers - Fixed at top */}
-      <div className="flex-shrink-0 px-3 sm:px-6 py-3 border-b border-gray-100 bg-gray-50">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-gray-600">Quick Add</span>
+      {/* Quick Add Headers - Compact */}
+      <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-medium text-gray-500">Quick Add</span>
         </div>
         <div className="flex flex-wrap gap-1">
           {COMMON_HEADERS.map((header) => (
@@ -87,7 +87,7 @@ export function HeadersTab({ tabId }: HeadersTabProps) {
               variant="outline"
               size="sm"
               onClick={() => addCommonHeader(header)}
-              className="h-6 text-xs px-2 bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 border-gray-300"
+              className="h-5 text-xs px-1.5 bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 border-gray-300"
             >
               {header.key}
             </Button>
@@ -95,8 +95,8 @@ export function HeadersTab({ tabId }: HeadersTabProps) {
         </div>
       </div>
       
-      {/* Headers Table - Scrollable */}
-      <div className="flex-1 p-3 sm:p-6 min-h-0 overflow-y-auto">
+      {/* Headers Table - Compact */}
+      <div className="flex-1 p-4 min-h-0 overflow-y-auto">
         <KeyValueEditor
           items={activeTab.headers}
           onAdd={addHeader}

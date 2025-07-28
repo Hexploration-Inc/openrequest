@@ -66,9 +66,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
 
   return (
     <div className="h-full bg-white flex flex-col overflow-hidden">
-      {/* Body Type Selection */}
-      <div className="flex-shrink-0 px-3 sm:px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
+      {/* Body Type Selection - Compact */}
+      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200">
+        <div className="flex items-center gap-4 flex-wrap">
           {/* None */}
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -164,8 +164,8 @@ export function BodyTab({ tabId }: BodyTabProps) {
         </div>
       </div>
 
-      {/* Body Content Area */}
-      <div className="flex-1 p-3 sm:p-6 min-h-0 overflow-y-auto">
+      {/* Body Content Area - Compact */}
+      <div className="flex-1 p-4 min-h-0 overflow-y-auto">
         {activeTab.bodyType === "none" ? (
           <div className="h-full flex items-center justify-center text-gray-500">
             <p className="text-sm">This request does not have a body</p>

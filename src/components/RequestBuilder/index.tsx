@@ -266,29 +266,29 @@ export function RequestBuilder() {
           }}
           className="h-full flex flex-col"
         >
-          <div className="border-b border-gray-200 bg-white">
-            <TabsList className="h-12 bg-transparent p-0 space-x-0 rounded-none w-full justify-start">
+          <div className="bg-white">
+            <TabsList className="h-10 bg-transparent p-0 space-x-0 rounded-none w-full justify-start border-b border-gray-200">
               <TabsTrigger 
                 value="params" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent px-6 py-3 font-medium"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 px-4 py-2 text-sm font-medium text-gray-600 data-[state=active]:text-blue-600"
               >
                 Params
               </TabsTrigger>
               <TabsTrigger 
                 value="headers"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent px-6 py-3 font-medium"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 px-4 py-2 text-sm font-medium text-gray-600 data-[state=active]:text-blue-600"
               >
                 Headers
               </TabsTrigger>
               <TabsTrigger 
                 value="body"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent px-6 py-3 font-medium"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 px-4 py-2 text-sm font-medium text-gray-600 data-[state=active]:text-blue-600"
               >
                 Body
               </TabsTrigger>
               <TabsTrigger 
                 value="auth"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent px-6 py-3 font-medium"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 px-4 py-2 text-sm font-medium text-gray-600 data-[state=active]:text-blue-600"
               >
                 Auth
               </TabsTrigger>

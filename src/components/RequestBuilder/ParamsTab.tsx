@@ -46,7 +46,7 @@ export function ParamsTab({ tabId }: ParamsTabProps) {
 
   return (
     <div className="h-full bg-white flex flex-col overflow-hidden">
-      <div className="flex-1 p-3 sm:p-6 min-h-0 overflow-y-auto">
+      <div className="flex-1 p-4 min-h-0 overflow-y-auto">
         <KeyValueEditor
           items={activeTab.params}
           onAdd={addParam}
