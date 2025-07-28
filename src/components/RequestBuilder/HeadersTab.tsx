@@ -74,33 +74,42 @@ export function HeadersTab({ tabId }: HeadersTabProps) {
   };
 
   return (
-    <div className="h-full bg-white">
-      <div className="p-6 space-y-4">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-1">Request Headers</h3>
-          <p className="text-xs text-gray-600">
-            Headers allow you to provide additional information about the request.
-          </p>
+    <div className="h-full bg-white flex flex-col">
+      <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">Request Headers</h3>
+            <p className="text-xs text-gray-500 mt-1">
+              Headers allow you to provide additional information about the request.
+            </p>
+          </div>
+          <div className="text-xs text-gray-500">
+            {activeTab.headers.filter(h => h.enabled && h.key.trim()).length} active
+          </div>
         </div>
 
         {/* Common Headers Quick Add */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="text-xs font-medium text-gray-700 mb-3">Quick Add Common Headers</h4>
-          <div className="flex flex-wrap gap-2">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-xs font-medium text-gray-700">Quick Add</h4>
+          </div>
+          <div className="flex flex-wrap gap-1">
             {COMMON_HEADERS.map((header) => (
               <Button
                 key={header.key}
                 variant="outline"
                 size="sm"
                 onClick={() => addCommonHeader(header)}
-                className="h-7 text-xs px-3 bg-white hover:bg-gray-100"
+                className="h-6 text-xs px-2 bg-white hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700 border-gray-300"
               >
                 {header.key}
               </Button>
             ))}
           </div>
         </div>
-        
+      </div>
+      
+      <div className="flex-1 p-6 min-h-0">
         <KeyValueEditor
           items={activeTab.headers}
           onAdd={addHeader}

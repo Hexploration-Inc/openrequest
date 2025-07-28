@@ -59,19 +59,27 @@ export function BodyTab({ tabId }: BodyTabProps) {
 
   return (
     <div className="h-full bg-white flex flex-col">
-      <div className="p-6 space-y-4 flex-shrink-0 border-b border-gray-100">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-1">Request Body</h3>
-          <p className="text-xs text-gray-600">
-            The request body contains the data sent to the server.
-          </p>
+      <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">Request Body</h3>
+            <p className="text-xs text-gray-500 mt-1">
+              The request body contains the data sent to the server.
+            </p>
+          </div>
+          <div className="text-xs text-gray-500">
+            {activeTab.bodyType !== 'none' && activeTab.bodyContent ? 
+              `${new Blob([activeTab.bodyContent]).size} bytes` : 
+              'No body'
+            }
+          </div>
         </div>
 
         {/* Body Type Selector */}
         <div>
-          <label className="text-xs font-medium text-gray-700 mb-2 block">Body Type</label>
-          <div className="grid grid-cols-2 gap-2">
-            {BODY_TYPES.map((type) => (
+          <label className="text-xs font-medium text-gray-700 mb-3 block">Body Type</label>
+          <div className="grid grid-cols-4 gap-2 mb-2">
+            {BODY_TYPES.slice(0, 4).map((type) => (
               <Button
                 key={type.value}
                 variant={activeTab.bodyType === type.value ? "default" : "outline"}
@@ -80,12 +88,33 @@ export function BodyTab({ tabId }: BodyTabProps) {
                   updateTabData(tabId, { bodyType: type.value });
                   markTabAsUnsaved(tabId);
                 }}
-                className="justify-start h-auto p-2"
+                className={`justify-center h-8 text-xs ${
+                  activeTab.bodyType === type.value 
+                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
+                    : 'hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700'
+                }`}
               >
-                <div className="text-left">
-                  <div className="text-xs font-medium">{type.label}</div>
-                  <div className="text-xs text-gray-500">{type.description}</div>
-                </div>
+                {type.label}
+              </Button>
+            ))}
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {BODY_TYPES.slice(4).map((type) => (
+              <Button
+                key={type.value}
+                variant={activeTab.bodyType === type.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  updateTabData(tabId, { bodyType: type.value });
+                  markTabAsUnsaved(tabId);
+                }}
+                className={`justify-center h-8 text-xs ${
+                  activeTab.bodyType === type.value 
+                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
+                    : 'hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700'
+                }`}
+              >
+                {type.label}
               </Button>
             ))}
           </div>
@@ -93,17 +122,21 @@ export function BodyTab({ tabId }: BodyTabProps) {
       </div>
 
       {/* Body Content */}
-      <div className="flex-1 p-6 pt-4">
+      <div className="flex-1 p-6 min-h-0">
         {activeTab.bodyType === "none" ? (
-          <div className="h-full flex items-center justify-center text-gray-500">
-            <p>No body content for this request</p>
+          <div className="h-full flex items-center justify-center text-gray-400 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <div className="text-center">
+              <div className="text-lg mb-2">📝</div>
+              <p className="text-sm">No body content for this request</p>
+              <p className="text-xs mt-1">Select a body type above to add content</p>
+            </div>
           </div>
         ) : activeTab.bodyType === "form-data" ? (
-          <div className="h-full">
-            <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex items-center">
-                <div className="text-yellow-800 text-sm">
-                  <strong>Note:</strong> Form data support coming soon. Use raw body for now.
+          <div className="h-full flex flex-col">
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start">
+                <div className="text-blue-800 text-sm">
+                  <strong>Coming Soon:</strong> Visual form-data editor. Use raw multipart format for now.
                 </div>
               </div>
             </div>
@@ -114,34 +147,42 @@ export function BodyTab({ tabId }: BodyTabProps) {
                 updateTabData(tabId, { bodyContent: e.target.value });
                 markTabAsUnsaved(tabId);
               }}
-              className="h-32 font-mono text-sm"
+              className="flex-1 font-mono text-sm resize-none border-gray-300 focus:border-orange-500 focus:ring-orange-500"
             />
           </div>
         ) : (
           <div className="h-full flex flex-col">
-            {/* Format Button for JSON */}
-            {activeTab.bodyType === "json" && (
-              <div className="mb-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleFormatCode}
-                  className="h-7 text-xs"
-                >
-                  Format JSON
-                </Button>
+            {/* Toolbar */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex gap-2">
+                {/* Format Button for JSON */}
+                {activeTab.bodyType === "json" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFormatCode}
+                    className="h-7 text-xs hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700"
+                  >
+                    Format JSON
+                  </Button>
+                )}
               </div>
-            )}
+              <div className="text-xs text-gray-500">
+                {activeTab.bodyContent ? `${activeTab.bodyContent.split('\n').length} lines` : '0 lines'}
+              </div>
+            </div>
             
-            <Textarea
-              placeholder={getPlaceholder()}
-              value={activeTab.bodyContent}
-              onChange={(e) => {
-                updateTabData(tabId, { bodyContent: e.target.value });
-                markTabAsUnsaved(tabId);
-              }}
-              className="flex-1 font-mono text-sm resize-none"
-            />
+            <div className="flex-1 border border-gray-300 rounded-lg overflow-hidden">
+              <Textarea
+                placeholder={getPlaceholder()}
+                value={activeTab.bodyContent}
+                onChange={(e) => {
+                  updateTabData(tabId, { bodyContent: e.target.value });
+                  markTabAsUnsaved(tabId);
+                }}
+                className="h-full w-full font-mono text-sm resize-none border-0 focus:ring-0 focus:outline-orange-500"
+              />
+            </div>
           </div>
         )}
       </div>
