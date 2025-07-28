@@ -15,6 +15,13 @@ interface RequestState {
   // Response data
   response: ApiResponse | null;
   isLoading: boolean;
+  isSaving: boolean;
+  
+  // Currently loaded request info (for updates)
+  currentRequestId: string | null;
+  currentRequestName: string | null;
+  currentCollectionId: string | null;
+  currentRequestCreatedAt: string | null;
   
   // UI state
   activeTab: 'params' | 'headers' | 'body' | 'auth';
@@ -47,6 +54,9 @@ interface RequestState {
   // Load request from saved data
   loadRequest: (request: any) => void;
   
+  // Save/update request
+  saveRequest: (onSaved?: () => void) => Promise<void>;
+  
   // Reset
   resetRequest: () => void;
 }
@@ -71,6 +81,11 @@ export const useRequestStore = create<RequestState>((set, get) => ({
   auth: { type: 'none', data: {} },
   response: null,
   isLoading: false,
+  isSaving: false,
+  currentRequestId: null,
+  currentRequestName: null,
+  currentCollectionId: null,
+  currentRequestCreatedAt: null,
   activeTab: 'params',
 
   // Basic setters
@@ -247,9 +262,103 @@ export const useRequestStore = create<RequestState>((set, get) => ({
         response: null,
         isLoading: false,
         activeTab: 'params',
+        // Store current request info for updates
+        currentRequestId: request.id,
+        currentRequestName: request.name,
+        currentCollectionId: request.collection_id,
+        currentRequestCreatedAt: request.created_at,
       });
     } catch (error) {
       console.error('Failed to load request:', error);
+    }
+  },
+
+  // Save/update request
+  saveRequest: async (onSaved?: () => void) => {
+    console.log('🎯 saveRequest called');
+    
+    const { 
+      method, 
+      url, 
+      params, 
+      headers, 
+      bodyType, 
+      bodyContent, 
+      auth,
+      currentRequestId,
+      currentRequestName,
+      currentCollectionId,
+      currentRequestCreatedAt
+    } = get();
+    
+    console.log('🎯 Current request state:', {
+      currentRequestId,
+      currentRequestName,
+      currentCollectionId,
+      method,
+      url
+    });
+    
+    if (!currentRequestId || !currentRequestName || !currentCollectionId) {
+      console.error('❌ Missing required fields for save');
+      throw new Error('No request loaded to save');
+    }
+
+    console.log('🎯 Setting isSaving to true');
+    set({ isSaving: true });
+    
+    try {
+      // Convert params and headers to JSON strings
+      const paramsObj: Record<string, string> = {};
+      params.filter(p => p.enabled && p.key.trim()).forEach(p => {
+        paramsObj[p.key] = p.value;
+      });
+
+      const headersObj: Record<string, string> = {};
+      headers.filter(h => h.enabled && h.key.trim()).forEach(h => {
+        headersObj[h.key] = h.value;
+      });
+
+      // Prepare auth data
+      let authType: string | undefined;
+      let authData: string | undefined;
+      
+      if (auth.type !== 'none') {
+        authType = auth.type;
+        authData = JSON.stringify(auth.data);
+      }
+
+      const updatedRequest = {
+        id: currentRequestId,
+        collection_id: currentCollectionId,
+        name: currentRequestName,
+        method,
+        url,
+        params: JSON.stringify(paramsObj),
+        headers: JSON.stringify(headersObj),
+        body_type: bodyType,
+        body_str: bodyContent || null,
+        auth_type: authType || null,
+        auth_data: authData || null,
+        created_at: currentRequestCreatedAt || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      console.log('🎯 Calling update_request with:', updatedRequest);
+      await invoke('update_request', { request: updatedRequest });
+      
+      console.log('✅ Request updated successfully');
+      set({ isSaving: false });
+      
+      // Call callback to refresh collections if provided
+      if (onSaved) {
+        console.log('🎯 Calling onSaved callback');
+        onSaved();
+      }
+    } catch (error) {
+      console.error('Failed to save request:', error);
+      set({ isSaving: false });
+      throw error;
     }
   },
 
@@ -265,6 +374,11 @@ export const useRequestStore = create<RequestState>((set, get) => ({
       auth: { type: 'none', data: {} },
       response: null,
       isLoading: false,
+      isSaving: false,
+      currentRequestId: null,
+      currentRequestName: null,
+      currentCollectionId: null,
+      currentRequestCreatedAt: null,
       activeTab: 'params',
     });
   },

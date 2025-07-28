@@ -1,8 +1,9 @@
 import { useRequestStore } from "../../lib/stores/request";
+import { useCollectionsStore } from "../../lib/stores/collections";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Save } from "lucide-react";
 import { HttpMethod } from "../../lib/types";
 import { ParamsTab } from "./ParamsTab";
 import { HeadersTab } from "./HeadersTab";
@@ -16,12 +17,19 @@ export function RequestBuilder() {
     method,
     url,
     isLoading,
+    isSaving,
     activeTab,
+    currentRequestId,
+    currentRequestName,
+    currentCollectionId,
     setMethod,
     setUrl,
     setActiveTab,
     sendRequest,
+    saveRequest,
   } = useRequestStore();
+
+  const { loadRequestsForCollection } = useCollectionsStore();
 
   const handleSendRequest = async () => {
     try {
@@ -32,8 +40,35 @@ export function RequestBuilder() {
     }
   };
 
+  const handleSaveRequest = async () => {
+    console.log('🔴 Save button clicked');
+    try {
+      await saveRequest(() => {
+        console.log('🔄 Save callback called - refreshing requests');
+        // Refresh the requests in the sidebar after saving
+        if (currentCollectionId) {
+          loadRequestsForCollection(currentCollectionId);
+        }
+      });
+      console.log('✅ Save completed successfully');
+      // TODO: Show success toast
+    } catch (error) {
+      console.error('❌ Failed to save request:', error);
+      // TODO: Show error toast
+    }
+  };
+
   return (
     <div className="h-full flex flex-col bg-white">
+      {/* Current Request Indicator */}
+      {currentRequestId && currentRequestName && (
+        <div className="px-6 py-2 bg-blue-50 border-b border-blue-100">
+          <div className="text-sm text-blue-700">
+            <span className="font-medium">Editing:</span> {currentRequestName}
+          </div>
+        </div>
+      )}
+
       {/* URL Bar */}
       <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
         <div className="flex gap-3 items-center">
@@ -66,6 +101,29 @@ export function RequestBuilder() {
               className="pr-24 font-mono text-sm border-gray-300 focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
+
+          {/* Save Button - only show if request is loaded */}
+          {currentRequestId && (
+            <Button
+              onClick={handleSaveRequest}
+              disabled={isSaving}
+              variant="outline"
+              className="px-6 border-gray-300 hover:bg-gray-50 text-gray-700 font-medium"
+              size="lg"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save
+                </>
+              )}
+            </Button>
+          )}
 
           {/* Send Button */}
           <Button
