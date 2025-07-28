@@ -1,4 +1,4 @@
-import { useRequestStore } from "../../lib/stores/request";
+import { useTabsStore } from "../../lib/stores/tabs";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { BodyType } from "../../lib/types";
@@ -14,19 +14,24 @@ const BODY_TYPES: { value: BodyType; label: string; description: string }[] = [
   { value: "x-www-form-urlencoded", label: "URL Encoded", description: "application/x-www-form-urlencoded" },
 ];
 
-export function BodyTab() {
-  const {
-    bodyType,
-    bodyContent,
-    setBodyType,
-    setBodyContent,
-  } = useRequestStore();
+interface BodyTabProps {
+  tabId: string;
+}
+
+export function BodyTab({ tabId }: BodyTabProps) {
+  const { getActiveTab, updateTabData, markTabAsUnsaved } = useTabsStore();
+  
+  const activeTab = getActiveTab();
+  if (!activeTab || activeTab.id !== tabId) {
+    return null;
+  }
 
   const handleFormatCode = () => {
-    if (bodyType === "json") {
+    if (activeTab.bodyType === "json") {
       try {
-        const formatted = JSON.stringify(JSON.parse(bodyContent), null, 2);
-        setBodyContent(formatted);
+        const formatted = JSON.stringify(JSON.parse(activeTab.bodyContent), null, 2);
+        updateTabData(tabId, { bodyContent: formatted });
+        markTabAsUnsaved(tabId);
       } catch (e) {
         // Invalid JSON, do nothing
       }
@@ -34,7 +39,7 @@ export function BodyTab() {
   };
 
   const getPlaceholder = () => {
-    switch (bodyType) {
+    switch (activeTab.bodyType) {
       case "json":
         return '{\n  "key": "value",\n  "number": 123,\n  "boolean": true\n}';
       case "xml":
@@ -69,9 +74,12 @@ export function BodyTab() {
             {BODY_TYPES.map((type) => (
               <Button
                 key={type.value}
-                variant={bodyType === type.value ? "default" : "outline"}
+                variant={activeTab.bodyType === type.value ? "default" : "outline"}
                 size="sm"
-                onClick={() => setBodyType(type.value)}
+                onClick={() => {
+                  updateTabData(tabId, { bodyType: type.value });
+                  markTabAsUnsaved(tabId);
+                }}
                 className="justify-start h-auto p-2"
               >
                 <div className="text-left">
@@ -86,11 +94,11 @@ export function BodyTab() {
 
       {/* Body Content */}
       <div className="flex-1 p-6 pt-4">
-        {bodyType === "none" ? (
+        {activeTab.bodyType === "none" ? (
           <div className="h-full flex items-center justify-center text-gray-500">
             <p>No body content for this request</p>
           </div>
-        ) : bodyType === "form-data" ? (
+        ) : activeTab.bodyType === "form-data" ? (
           <div className="h-full">
             <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex items-center">
@@ -101,15 +109,18 @@ export function BodyTab() {
             </div>
             <Textarea
               placeholder="For now, use raw multipart format or switch to JSON/URL Encoded"
-              value={bodyContent}
-              onChange={(e) => setBodyContent(e.target.value)}
+              value={activeTab.bodyContent}
+              onChange={(e) => {
+                updateTabData(tabId, { bodyContent: e.target.value });
+                markTabAsUnsaved(tabId);
+              }}
               className="h-32 font-mono text-sm"
             />
           </div>
         ) : (
           <div className="h-full flex flex-col">
             {/* Format Button for JSON */}
-            {bodyType === "json" && (
+            {activeTab.bodyType === "json" && (
               <div className="mb-2">
                 <Button
                   variant="outline"
@@ -124,8 +135,11 @@ export function BodyTab() {
             
             <Textarea
               placeholder={getPlaceholder()}
-              value={bodyContent}
-              onChange={(e) => setBodyContent(e.target.value)}
+              value={activeTab.bodyContent}
+              onChange={(e) => {
+                updateTabData(tabId, { bodyContent: e.target.value });
+                markTabAsUnsaved(tabId);
+              }}
               className="flex-1 font-mono text-sm resize-none"
             />
           </div>

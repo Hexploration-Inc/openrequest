@@ -1,4 +1,4 @@
-import { useRequestStore } from "../../lib/stores/request";
+import { useTabsStore } from "../../lib/stores/tabs";
 import { KeyValueEditor } from "./KeyValueEditor";
 import { Button } from "../ui/button";
 
@@ -11,28 +11,65 @@ const COMMON_HEADERS = [
   { key: "Cache-Control", value: "no-cache" },
 ];
 
-export function HeadersTab() {
-  const {
-    headers,
-    addHeader,
-    updateHeader,
-    removeHeader,
-  } = useRequestStore();
+interface HeadersTabProps {
+  tabId: string;
+}
+
+const generateId = () => Math.random().toString(36).substr(2, 9);
+
+export function HeadersTab({ tabId }: HeadersTabProps) {
+  const { getActiveTab, updateTabData, markTabAsUnsaved } = useTabsStore();
+  
+  const activeTab = getActiveTab();
+  if (!activeTab || activeTab.id !== tabId) {
+    return null;
+  }
+  
+  const addHeader = () => {
+    const newHeader = {
+      id: generateId(),
+      key: '',
+      value: '',
+      enabled: true,
+    };
+    updateTabData(tabId, { 
+      headers: [...activeTab.headers, newHeader] 
+    });
+    markTabAsUnsaved(tabId);
+  };
+  
+  const updateHeader = (id: string, key: string, value: string, enabled: boolean) => {
+    const updatedHeaders = activeTab.headers.map(header =>
+      header.id === id ? { ...header, key, value, enabled } : header
+    );
+    updateTabData(tabId, { headers: updatedHeaders });
+    markTabAsUnsaved(tabId);
+  };
+  
+  const removeHeader = (id: string) => {
+    if (activeTab.headers.length > 1) {
+      const updatedHeaders = activeTab.headers.filter(header => header.id !== id);
+      updateTabData(tabId, { headers: updatedHeaders });
+      markTabAsUnsaved(tabId);
+    }
+  };
 
   const addCommonHeader = (headerTemplate: { key: string; value: string }) => {
     // Find an empty header to populate or add a new one
-    const emptyHeader = headers.find(h => !h.key.trim() && !h.value.trim());
+    const emptyHeader = activeTab.headers.find(h => !h.key.trim() && !h.value.trim());
     if (emptyHeader) {
       updateHeader(emptyHeader.id, headerTemplate.key, headerTemplate.value, true);
     } else {
-      addHeader();
-      // Update the newly added header (it will be the last one)
-      const newHeader = headers[headers.length - 1];
-      if (newHeader) {
-        setTimeout(() => {
-          updateHeader(newHeader.id, headerTemplate.key, headerTemplate.value, true);
-        }, 0);
-      }
+      const newHeader = {
+        id: generateId(),
+        key: headerTemplate.key,
+        value: headerTemplate.value,
+        enabled: true,
+      };
+      updateTabData(tabId, { 
+        headers: [...activeTab.headers, newHeader] 
+      });
+      markTabAsUnsaved(tabId);
     }
   };
 
@@ -65,7 +102,7 @@ export function HeadersTab() {
         </div>
         
         <KeyValueEditor
-          items={headers}
+          items={activeTab.headers}
           onAdd={addHeader}
           onUpdate={updateHeader}
           onRemove={removeHeader}

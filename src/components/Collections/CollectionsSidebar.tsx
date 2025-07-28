@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCollectionsStore } from "../../lib/stores/collections";
-import { useRequestStore } from "../../lib/stores/request";
+import { useTabsStore } from "../../lib/stores/tabs";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
@@ -17,7 +17,7 @@ export function CollectionsSidebar() {
     createRequest,
   } = useCollectionsStore();
 
-  const { loadRequest } = useRequestStore();
+  const { openRequestInTab } = useTabsStore();
 
   const [showCreateCollection, setShowCreateCollection] = useState(false);
   const [showCreateRequest, setShowCreateRequest] = useState(false);
@@ -155,7 +155,7 @@ export function CollectionsSidebar() {
                   <div
                     key={request.id}
                     className="group flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg cursor-pointer hover:bg-slate-50 transition-all"
-                    onClick={() => loadRequest(request)}
+                    onClick={() => openRequestInTab(request)}
                   >
                     <FileText className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                     <Badge 

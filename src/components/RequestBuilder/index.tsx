@@ -1,4 +1,4 @@
-import { useRequestStore } from "../../lib/stores/request";
+import { useTabsStore } from "../../lib/stores/tabs";
 import { useCollectionsStore } from "../../lib/stores/collections";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -9,79 +9,175 @@ import { ParamsTab } from "./ParamsTab";
 import { HeadersTab } from "./HeadersTab";
 import { BodyTab } from "./BodyTab";
 import { AuthTab } from "./AuthTab";
+import { invoke } from '@tauri-apps/api/core';
+import { ApiResponse } from "../../lib/types";
 
 const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
 export function RequestBuilder() {
-  const {
-    method,
-    url,
-    isLoading,
-    isSaving,
-    activeTab,
-    currentRequestId,
-    currentRequestName,
-    currentCollectionId,
-    setMethod,
-    setUrl,
-    setActiveTab,
-    sendRequest,
-    saveRequest,
-  } = useRequestStore();
-
+  const { getActiveTab, updateTabData, markTabAsUnsaved, markTabAsSaved } = useTabsStore();
   const { loadRequestsForCollection } = useCollectionsStore();
+  
+  const activeTab = getActiveTab();
+  
+  if (!activeTab) {
+    return (
+      <div className="h-full flex items-center justify-center text-gray-500">
+        No request tab open
+      </div>
+    );
+  }
 
   const handleSendRequest = async () => {
+    if (!activeTab.url.trim()) {
+      console.error('URL is required');
+      return;
+    }
+
+    // Update tab to show loading state
+    updateTabData(activeTab.id, { isLoading: true }, false);
+    
     try {
-      await sendRequest();
+      const startTime = Date.now();
+      
+      // Convert params and headers to the format expected by backend
+      const paramsObj: Record<string, string> = {};
+      activeTab.params.filter(p => p.enabled && p.key.trim()).forEach(p => {
+        paramsObj[p.key] = p.value;
+      });
+
+      const headersObj: Record<string, string> = {};
+      activeTab.headers.filter(h => h.enabled && h.key.trim()).forEach(h => {
+        headersObj[h.key] = h.value;
+      });
+
+      // Prepare auth data
+      let authType: string | undefined;
+      let authData: string | undefined;
+      
+      if (activeTab.auth.type !== 'none') {
+        authType = activeTab.auth.type;
+        authData = JSON.stringify(activeTab.auth.data);
+      }
+
+      // Only include body for methods that support it
+      const bodyAllowedMethods = ['POST', 'PUT', 'PATCH'];
+      const requestBody = bodyAllowedMethods.includes(activeTab.method) && activeTab.bodyContent ? activeTab.bodyContent : null;
+
+      const apiRequest = {
+        method: activeTab.method,
+        url: activeTab.url,
+        params: paramsObj,
+        headers: headersObj,
+        body: requestBody,
+        auth_type: authType,
+        auth_data: authData,
+      };
+
+      const response = await invoke<ApiResponse>('send_api_request', {
+        request: apiRequest,
+      });
+
+      const responseTime = Date.now() - startTime;
+      const size = new Blob([response.body]).size;
+
+      updateTabData(activeTab.id, {
+        isLoading: false,
+        response: {
+          ...response,
+          responseTime,
+          size,
+        },
+      }, false);
     } catch (error) {
-      console.error('Failed to send request:', error);
+      console.error('Request failed:', error);
+      updateTabData(activeTab.id, { isLoading: false }, false);
       // TODO: Show error toast
     }
   };
 
   const handleSaveRequest = async () => {
-    console.log('🔴 Save button clicked');
+    if (!activeTab.requestId || !activeTab.collectionId) {
+      console.error('Cannot save: missing request ID or collection ID');
+      return;
+    }
+    
+    updateTabData(activeTab.id, { isSaving: true }, false);
+    
     try {
-      await saveRequest(() => {
-        console.log('🔄 Save callback called - refreshing requests');
-        // Refresh the requests in the sidebar after saving
-        if (currentCollectionId) {
-          loadRequestsForCollection(currentCollectionId);
-        }
+      // Convert params and headers to JSON strings
+      const paramsObj: Record<string, string> = {};
+      activeTab.params.filter(p => p.enabled && p.key.trim()).forEach(p => {
+        paramsObj[p.key] = p.value;
       });
+
+      const headersObj: Record<string, string> = {};
+      activeTab.headers.filter(h => h.enabled && h.key.trim()).forEach(h => {
+        headersObj[h.key] = h.value;
+      });
+
+      // Prepare auth data
+      let authType: string | undefined;
+      let authData: string | undefined;
+      
+      if (activeTab.auth.type !== 'none') {
+        authType = activeTab.auth.type;
+        authData = JSON.stringify(activeTab.auth.data);
+      }
+
+      const updatedRequest = {
+        id: activeTab.requestId,
+        collection_id: activeTab.collectionId,
+        name: activeTab.name,
+        method: activeTab.method,
+        url: activeTab.url,
+        params: JSON.stringify(paramsObj),
+        headers: JSON.stringify(headersObj),
+        body_type: activeTab.bodyType,
+        body_str: activeTab.bodyContent || null,
+        auth_type: authType || null,
+        auth_data: authData || null,
+        created_at: activeTab.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      await invoke('update_request', { request: updatedRequest });
+      
+      markTabAsSaved(activeTab.id);
+      updateTabData(activeTab.id, { isSaving: false }, false);
+      
+      // Refresh the requests in the sidebar after saving
+      if (activeTab.collectionId) {
+        loadRequestsForCollection(activeTab.collectionId);
+      }
+      
       console.log('✅ Save completed successfully');
-      // TODO: Show success toast
     } catch (error) {
       console.error('❌ Failed to save request:', error);
+      updateTabData(activeTab.id, { isSaving: false }, false);
       // TODO: Show error toast
     }
   };
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Current Request Indicator */}
-      {currentRequestId && currentRequestName && (
-        <div className="px-6 py-2 bg-blue-50 border-b border-blue-100">
-          <div className="text-sm text-blue-700">
-            <span className="font-medium">Editing:</span> {currentRequestName}
-          </div>
-        </div>
-      )}
 
       {/* URL Bar */}
       <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
         <div className="flex gap-3 items-center">
           {/* Method Selector */}
           <select
-            value={method}
-            onChange={(e) => setMethod(e.target.value as HttpMethod)}
+            value={activeTab.method}
+            onChange={(e) => {
+              updateTabData(activeTab.id, { method: e.target.value as HttpMethod });
+              markTabAsUnsaved(activeTab.id);
+            }}
             className={`px-3 py-2 border-0 rounded-md text-sm font-semibold min-w-[90px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              method === 'GET' ? 'bg-green-100 text-green-800' :
-              method === 'POST' ? 'bg-blue-100 text-blue-800' :
-              method === 'PUT' ? 'bg-orange-100 text-orange-800' :
-              method === 'DELETE' ? 'bg-red-100 text-red-800' :
-              method === 'PATCH' ? 'bg-purple-100 text-purple-800' :
+              activeTab.method === 'GET' ? 'bg-green-100 text-green-800' :
+              activeTab.method === 'POST' ? 'bg-blue-100 text-blue-800' :
+              activeTab.method === 'PUT' ? 'bg-orange-100 text-orange-800' :
+              activeTab.method === 'DELETE' ? 'bg-red-100 text-red-800' :
+              activeTab.method === 'PATCH' ? 'bg-purple-100 text-purple-800' :
               'bg-gray-100 text-gray-800'
             }`}
           >
@@ -96,22 +192,25 @@ export function RequestBuilder() {
           <div className="flex-1 relative">
             <Input
               placeholder="Enter request URL (e.g., https://api.example.com/users)"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              value={activeTab.url}
+              onChange={(e) => {
+                updateTabData(activeTab.id, { url: e.target.value });
+                markTabAsUnsaved(activeTab.id);
+              }}
               className="pr-24 font-mono text-sm border-gray-300 focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
           {/* Save Button - only show if request is loaded */}
-          {currentRequestId && (
+          {activeTab.requestId && (
             <Button
               onClick={handleSaveRequest}
-              disabled={isSaving}
+              disabled={activeTab.isSaving}
               variant="outline"
               className="px-6 border-gray-300 hover:bg-gray-50 text-gray-700 font-medium"
               size="lg"
             >
-              {isSaving ? (
+              {activeTab.isSaving ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Saving...
@@ -128,11 +227,11 @@ export function RequestBuilder() {
           {/* Send Button */}
           <Button
             onClick={handleSendRequest}
-            disabled={!url.trim() || isLoading}
+            disabled={!activeTab.url.trim() || activeTab.isLoading}
             className="px-8 bg-orange-500 hover:bg-orange-600 text-white font-medium"
             size="lg"
           >
-            {isLoading ? (
+            {activeTab.isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Sending...
@@ -150,8 +249,18 @@ export function RequestBuilder() {
       {/* Request Configuration Tabs */}
       <div className="flex-1 flex flex-col">
         <Tabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as any)}
+          value={activeTab.activeTab}
+          onValueChange={(value) => {
+            // Don't mark as unsaved when just switching tabs
+            const { getActiveTab, tabs, setActiveTab: setTabsActiveTab } = useTabsStore.getState();
+            const currentTab = getActiveTab();
+            if (currentTab) {
+              const updatedTabs = tabs.map(tab =>
+                tab.id === currentTab.id ? { ...tab, activeTab: value as any } : tab
+              );
+              useTabsStore.setState({ tabs: updatedTabs });
+            }
+          }}
           className="h-full flex flex-col"
         >
           <div className="border-b border-gray-200 bg-white">
@@ -185,19 +294,19 @@ export function RequestBuilder() {
           
           <div className="flex-1 overflow-hidden">
             <TabsContent value="params" className="h-full m-0">
-              <ParamsTab />
+              <ParamsTab tabId={activeTab.id} />
             </TabsContent>
             
             <TabsContent value="headers" className="h-full m-0">
-              <HeadersTab />
+              <HeadersTab tabId={activeTab.id} />
             </TabsContent>
             
             <TabsContent value="body" className="h-full m-0">
-              <BodyTab />
+              <BodyTab tabId={activeTab.id} />
             </TabsContent>
             
             <TabsContent value="auth" className="h-full m-0">
-              <AuthTab />
+              <AuthTab tabId={activeTab.id} />
             </TabsContent>
           </div>
         </Tabs>

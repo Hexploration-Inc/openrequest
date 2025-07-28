@@ -1,4 +1,4 @@
-import { useRequestStore } from "../../lib/stores/request";
+import { useTabsStore } from "../../lib/stores/tabs";
 import { Badge } from "../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Clock, Database } from "lucide-react";
@@ -42,7 +42,11 @@ function formatResponseBody(body: string, contentType: string): string {
 }
 
 export function ResponseViewer() {
-  const { response, isLoading } = useRequestStore();
+  const { getActiveTab } = useTabsStore();
+  
+  const activeTab = getActiveTab();
+  const response = activeTab?.response;
+  const isLoading = activeTab?.isLoading;
 
   if (isLoading) {
     return (

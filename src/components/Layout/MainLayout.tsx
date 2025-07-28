@@ -1,25 +1,32 @@
 import { useEffect } from "react";
 import { useCollectionsStore } from "../../lib/stores/collections";
+import { useTabsStore } from "../../lib/stores/tabs";
 import { CollectionsSidebar } from "../Collections/CollectionsSidebar";
 import { RequestBuilder } from "../RequestBuilder";
 import { ResponseViewer } from "../ResponseViewer";
+import { RequestTabs } from "../RequestTabs";
 
 export function MainLayout() {
   const initializeDatabase = useCollectionsStore((state) => state.initializeDatabase);
   const isDbInitialized = useCollectionsStore((state) => state.isDbInitialized);
   const collections = useCollectionsStore((state) => state.collections);
   const selectedCollectionId = useCollectionsStore((state) => state.selectedCollectionId);
+  const { openNewTab, tabs } = useTabsStore();
 
   useEffect(() => {
     console.log("🏗️ MainLayout: Initializing database...");
     initializeDatabase()
       .then(() => {
         console.log("✅ MainLayout: Database initialized successfully");
+        // Open a new tab if no tabs are open
+        if (tabs.length === 0) {
+          openNewTab();
+        }
       })
       .catch((error) => {
         console.error("❌ MainLayout: Database initialization failed:", error);
       });
-  }, [initializeDatabase]);
+  }, [initializeDatabase, openNewTab, tabs.length]);
 
   useEffect(() => {
     console.log("📊 MainLayout: State updated:", {
@@ -53,6 +60,9 @@ export function MainLayout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Request Tabs */}
+        <RequestTabs />
+        
         {/* Request Builder - Top Half */}
         <div className="h-1/2 border-b border-gray-200 bg-white">
           <RequestBuilder />

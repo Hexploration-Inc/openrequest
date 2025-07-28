@@ -1,4 +1,4 @@
-import { useRequestStore } from "../../lib/stores/request";
+import { useTabsStore } from "../../lib/stores/tabs";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent } from "../ui/card";
@@ -11,28 +11,41 @@ const AUTH_TYPES = [
   { value: "api-key", label: "API Key", description: "Custom API key in header or query" },
 ] as const;
 
-export function AuthTab() {
-  const { auth, setAuth } = useRequestStore();
+interface AuthTabProps {
+  tabId: string;
+}
+
+export function AuthTab({ tabId }: AuthTabProps) {
+  const { getActiveTab, updateTabData, markTabAsUnsaved } = useTabsStore();
+  
+  const activeTab = getActiveTab();
+  if (!activeTab || activeTab.id !== tabId) {
+    return null;
+  }
 
   const updateAuthData = (key: string, value: string) => {
-    setAuth({
-      ...auth,
+    const updatedAuth = {
+      ...activeTab.auth,
       data: {
-        ...auth.data,
+        ...activeTab.auth.data,
         [key]: value,
       },
-    });
+    };
+    updateTabData(tabId, { auth: updatedAuth });
+    markTabAsUnsaved(tabId);
   };
 
   const setAuthType = (type: AuthConfig['type']) => {
-    setAuth({
+    const updatedAuth = {
       type,
       data: {},
-    });
+    };
+    updateTabData(tabId, { auth: updatedAuth });
+    markTabAsUnsaved(tabId);
   };
 
   const renderAuthForm = () => {
-    switch (auth.type) {
+    switch (activeTab.auth.type) {
       case "bearer":
         return (
           <div className="space-y-4">
@@ -42,7 +55,7 @@ export function AuthTab() {
               </label>
               <Input
                 placeholder="Enter your bearer token"
-                value={auth.data.token || ""}
+                value={activeTab.auth.data.token || ""}
                 onChange={(e) => updateAuthData("token", e.target.value)}
                 className="font-mono"
               />
@@ -62,7 +75,7 @@ export function AuthTab() {
               </label>
               <Input
                 placeholder="Enter username"
-                value={auth.data.username || ""}
+                value={activeTab.auth.data.username || ""}
                 onChange={(e) => updateAuthData("username", e.target.value)}
               />
             </div>
@@ -73,7 +86,7 @@ export function AuthTab() {
               <Input
                 type="password"
                 placeholder="Enter password"
-                value={auth.data.password || ""}
+                value={activeTab.auth.data.password || ""}
                 onChange={(e) => updateAuthData("password", e.target.value)}
               />
             </div>
@@ -92,7 +105,7 @@ export function AuthTab() {
               </label>
               <Input
                 placeholder="e.g., X-API-Key, api_key"
-                value={auth.data.key || ""}
+                value={activeTab.auth.data.key || ""}
                 onChange={(e) => updateAuthData("key", e.target.value)}
               />
             </div>
@@ -102,7 +115,7 @@ export function AuthTab() {
               </label>
               <Input
                 placeholder="Enter your API key"
-                value={auth.data.value || ""}
+                value={activeTab.auth.data.value || ""}
                 onChange={(e) => updateAuthData("value", e.target.value)}
                 className="font-mono"
               />
@@ -113,14 +126,14 @@ export function AuthTab() {
               </label>
               <div className="flex gap-2">
                 <Button
-                  variant={auth.data.in === "header" ? "default" : "outline"}
+                  variant={activeTab.auth.data.in === "header" ? "default" : "outline"}
                   size="sm"
                   onClick={() => updateAuthData("in", "header")}
                 >
                   Header
                 </Button>
                 <Button
-                  variant={auth.data.in === "query" ? "default" : "outline"}
+                  variant={activeTab.auth.data.in === "query" ? "default" : "outline"}
                   size="sm"
                   onClick={() => updateAuthData("in", "query")}
                 >
@@ -128,7 +141,7 @@ export function AuthTab() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                {auth.data.in === "header"
+                {activeTab.auth.data.in === "header"
                   ? "API key will be sent as a request header"
                   : "API key will be sent as a query parameter"}
               </p>
@@ -164,7 +177,7 @@ export function AuthTab() {
             {AUTH_TYPES.map((type) => (
               <Button
                 key={type.value}
-                variant={auth.type === type.value ? "default" : "outline"}
+                variant={activeTab.auth.type === type.value ? "default" : "outline"}
                 size="sm"
                 onClick={() => setAuthType(type.value)}
                 className="justify-start h-auto p-3"
