@@ -47,14 +47,17 @@ export function ResponseViewer() {
   if (isLoading) {
     return (
       <div className="h-full flex flex-col bg-white">
-        <div className="border-b border-gray-200 p-4">
-          <div className="flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            <span className="text-sm text-gray-600">Sending request...</span>
+        <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
+          <div className="flex items-center gap-3">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
+            <span className="text-sm font-medium text-gray-700">Sending request...</span>
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-gray-500">Waiting for response...</p>
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-pulse text-gray-400 mb-2">⏳</div>
+            <p className="text-gray-500 text-sm">Waiting for response...</p>
+          </div>
         </div>
       </div>
     );
@@ -63,11 +66,14 @@ export function ResponseViewer() {
   if (!response) {
     return (
       <div className="h-full flex flex-col bg-white">
-        <div className="border-b border-gray-200 p-4">
-          <h2 className="text-lg font-semibold text-gray-900">Response</h2>
+        <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Response</h2>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-gray-500">Send a request to see the response</p>
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="text-gray-300 mb-4 text-4xl">📡</div>
+            <p className="text-gray-500 text-sm">Send a request to see the response</p>
+          </div>
         </div>
       </div>
     );
@@ -80,77 +86,97 @@ export function ResponseViewer() {
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Response Status Bar */}
-      <div className="border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between">
+      <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <Badge className={getStatusColor(response.status)}>
+            <span className="text-sm font-medium text-gray-700">Status:</span>
+            <Badge className={`font-semibold ${getStatusColor(response.status)}`}>
               {response.status}
             </Badge>
-            
-            {response.responseTime && (
-              <div className="flex items-center gap-1 text-sm text-gray-600">
-                <Clock className="h-3 w-3" />
-                <span>{response.responseTime}ms</span>
-              </div>
-            )}
-            
-            {response.size && (
-              <div className="flex items-center gap-1 text-sm text-gray-600">
-                <Database className="h-3 w-3" />
-                <span>{formatBytes(response.size)}</span>
-              </div>
-            )}
           </div>
+          
+          {response.responseTime && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Clock className="h-4 w-4" />
+              <span className="font-medium">{response.responseTime}ms</span>
+            </div>
+          )}
+          
+          {response.size && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Database className="h-4 w-4" />
+              <span className="font-medium">{formatBytes(response.size)}</span>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Response Content Tabs */}
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col">
         <Tabs defaultValue="body" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
-            <TabsTrigger value="body">Body</TabsTrigger>
-            <TabsTrigger value="headers">Headers</TabsTrigger>
-          </TabsList>
+          <div className="border-b border-gray-200 bg-white">
+            <TabsList className="h-12 bg-transparent p-0 space-x-0 rounded-none w-full justify-start">
+              <TabsTrigger 
+                value="body"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent px-6 py-3 font-medium"
+              >
+                Response Body
+              </TabsTrigger>
+              <TabsTrigger 
+                value="headers"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent px-6 py-3 font-medium"
+              >
+                Headers
+              </TabsTrigger>
+            </TabsList>
+          </div>
           
           <div className="flex-1 overflow-hidden">
             <TabsContent value="body" className="h-full p-0 m-0">
-              <div className="h-full overflow-auto">
+              <div className="h-full overflow-auto bg-white">
                 {formattedBody ? (
                   <SyntaxHighlighter
                     language={language}
                     style={oneLight}
                     customStyle={{
                       margin: 0,
-                      padding: '16px',
+                      padding: '24px',
                       background: 'white',
-                      fontSize: '12px',
-                      lineHeight: '1.4',
+                      fontSize: '13px',
+                      lineHeight: '1.5',
+                      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
                     }}
                   >
                     {formattedBody}
                   </SyntaxHighlighter>
                 ) : (
-                  <div className="p-4 text-gray-500 text-center">
-                    Empty response body
+                  <div className="h-full flex items-center justify-center text-gray-500 bg-gray-50">
+                    <div className="text-center">
+                      <div className="text-gray-300 mb-2 text-2xl">📄</div>
+                      <p className="text-sm">Empty response body</p>
+                    </div>
                   </div>
                 )}
               </div>
             </TabsContent>
             
-            <TabsContent value="headers" className="h-full p-4 m-0 overflow-auto">
-              <div className="space-y-2">
-                {Object.entries(response.headers).map(([key, value]) => (
-                  <div key={key} className="grid grid-cols-3 gap-4 py-2 border-b border-gray-100 last:border-b-0">
-                    <div className="font-medium text-sm text-gray-700">{key}</div>
-                    <div className="col-span-2 text-sm text-gray-600 break-all">{value}</div>
-                  </div>
-                ))}
-                
-                {Object.keys(response.headers).length === 0 && (
-                  <div className="text-center text-gray-500 py-8">
-                    No response headers
-                  </div>
-                )}
+            <TabsContent value="headers" className="h-full p-0 m-0">
+              <div className="h-full overflow-auto bg-white p-6">
+                <div className="space-y-3">
+                  {Object.entries(response.headers).map(([key, value]) => (
+                    <div key={key} className="grid grid-cols-3 gap-6 py-3 border-b border-gray-100 last:border-b-0">
+                      <div className="font-medium text-sm text-gray-900">{key}</div>
+                      <div className="col-span-2 text-sm text-gray-700 break-all font-mono">{value}</div>
+                    </div>
+                  ))}
+                  
+                  {Object.keys(response.headers).length === 0 && (
+                    <div className="text-center text-gray-500 py-12">
+                      <div className="text-gray-300 mb-2 text-2xl">📋</div>
+                      <p className="text-sm">No response headers</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </TabsContent>
           </div>

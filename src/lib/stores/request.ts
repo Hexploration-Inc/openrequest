@@ -44,6 +44,9 @@ interface RequestState {
   // Send request
   sendRequest: () => Promise<void>;
   
+  // Load request from saved data
+  loadRequest: (request: any) => void;
+  
   // Reset
   resetRequest: () => void;
 }
@@ -157,12 +160,16 @@ export const useRequestStore = create<RequestState>((set, get) => ({
         authData = JSON.stringify(auth.data);
       }
 
+      // Only include body for methods that support it
+      const bodyAllowedMethods = ['POST', 'PUT', 'PATCH'];
+      const requestBody = bodyAllowedMethods.includes(method) && bodyContent ? bodyContent : null;
+
       const apiRequest = {
         method,
         url,
         params: paramsObj,
         headers: headersObj,
-        body: bodyContent || null,
+        body: requestBody,
         auth_type: authType,
         auth_data: authData,
       };
@@ -186,6 +193,63 @@ export const useRequestStore = create<RequestState>((set, get) => ({
       console.error('Request failed:', error);
       set({ isLoading: false });
       throw error;
+    }
+  },
+
+  // Load request from saved data
+  loadRequest: (request) => {
+    try {
+      // Parse stored params and headers
+      const parsedParams = request.params ? JSON.parse(request.params) : {};
+      const parsedHeaders = request.headers ? JSON.parse(request.headers) : {};
+      
+      // Convert to KeyValuePair arrays
+      const paramsArray = Object.keys(parsedParams).length > 0 
+        ? Object.entries(parsedParams).map(([key, value]) => ({
+            id: generateId(),
+            key,
+            value: value as string,
+            enabled: true,
+          }))
+        : [createEmptyKeyValuePair()];
+
+      const headersArray = Object.keys(parsedHeaders).length > 0
+        ? Object.entries(parsedHeaders).map(([key, value]) => ({
+            id: generateId(),
+            key,
+            value: value as string,
+            enabled: true,
+          }))
+        : [createEmptyKeyValuePair()];
+
+      // Parse auth data
+      let authConfig: AuthConfig = { type: 'none', data: {} };
+      if (request.auth_type && request.auth_data) {
+        try {
+          const authData = JSON.parse(request.auth_data);
+          authConfig = {
+            type: request.auth_type as AuthConfig['type'],
+            data: authData,
+          };
+        } catch (e) {
+          console.warn('Failed to parse auth data:', e);
+        }
+      }
+
+      set({
+        method: request.method as HttpMethod,
+        url: request.url,
+        params: paramsArray,
+        headers: headersArray,
+        bodyType: request.body_type as BodyType || 'none',
+        bodyContent: request.body_str || '',
+        auth: authConfig,
+        response: null,
+        isLoading: false,
+        activeTab: 'params',
+      });
+    } catch (error) {
+      console.error('Failed to load request:', error);
     }
   },
 

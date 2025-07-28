@@ -24,21 +24,21 @@ export function MainLayout() {
   }
 
   return (
-    <div className="h-screen flex bg-gray-50">
+    <div className="h-screen flex bg-gray-100">
       {/* Sidebar */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
         <CollectionsSidebar />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Request Builder - Top Half */}
-        <div className="h-1/2 border-b border-gray-200">
+        <div className="h-1/2 border-b border-gray-200 bg-white">
           <RequestBuilder />
         </div>
 
         {/* Response Viewer - Bottom Half */}
-        <div className="h-1/2">
+        <div className="h-1/2 bg-white">
           <ResponseViewer />
         </div>
       </div>
