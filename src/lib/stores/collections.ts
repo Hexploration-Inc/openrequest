@@ -56,7 +56,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
       await invoke("create_collection", {
         name,
         description: description || null,
-        parent_id: null,
+        parentId: null,
       });
       await get().loadCollections();
     } catch (error) {
@@ -75,7 +75,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
   loadRequestsForCollection: async (collectionId: string) => {
     try {
       const requests = await invoke<Request[]>("get_requests_by_collection", {
-        collection_id: collectionId,
+        collectionId,
       });
       set({ requests });
     } catch (error) {
@@ -86,16 +86,25 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
 
   // Create new request
   createRequest: async (collectionId: string, name: string, method: string, url: string) => {
+    console.log("🏪 Store: createRequest called with:", { collectionId, name, method, url });
+    
     try {
-      await invoke("create_request", {
-        collection_id: collectionId,
+      console.log("🔄 Store: Invoking Tauri command 'create_request'...");
+      const result = await invoke("create_request", {
+        collectionId,
         name,
         method,
         url,
       });
+      console.log("✅ Store: create_request command successful, result:", result);
+      
+      console.log("🔄 Store: Loading requests for collection...");
       await get().loadRequestsForCollection(collectionId);
+      console.log("✅ Store: Requests reloaded successfully");
     } catch (error) {
-      console.error("Failed to create request:", error);
+      console.error("❌ Store: Failed to create request:", error);
+      console.error("❌ Store: Error type:", typeof error);
+      console.error("❌ Store: Error details:", JSON.stringify(error, null, 2));
       throw error;
     }
   },

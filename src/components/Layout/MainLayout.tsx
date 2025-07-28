@@ -7,10 +7,31 @@ import { ResponseViewer } from "../ResponseViewer";
 export function MainLayout() {
   const initializeDatabase = useCollectionsStore((state) => state.initializeDatabase);
   const isDbInitialized = useCollectionsStore((state) => state.isDbInitialized);
+  const collections = useCollectionsStore((state) => state.collections);
+  const selectedCollectionId = useCollectionsStore((state) => state.selectedCollectionId);
 
   useEffect(() => {
-    initializeDatabase().catch(console.error);
+    console.log("🏗️ MainLayout: Initializing database...");
+    initializeDatabase()
+      .then(() => {
+        console.log("✅ MainLayout: Database initialized successfully");
+      })
+      .catch((error) => {
+        console.error("❌ MainLayout: Database initialization failed:", error);
+      });
   }, [initializeDatabase]);
+
+  useEffect(() => {
+    console.log("📊 MainLayout: State updated:", {
+      isDbInitialized,
+      collectionsCount: collections.length,
+      selectedCollectionId,
+      collections: collections.map(c => ({ id: c.id, name: c.name }))
+    });
+    
+    // Expose store to global scope for debugging
+    (window as any).collectionsStore = useCollectionsStore.getState();
+  }, [isDbInitialized, collections, selectedCollectionId]);
 
   if (!isDbInitialized) {
     return (

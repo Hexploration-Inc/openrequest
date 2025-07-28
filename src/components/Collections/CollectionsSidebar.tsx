@@ -40,37 +40,60 @@ export function CollectionsSidebar() {
     }
   };
 
-  const handleCreateRequest = async () => {
-    console.log("Creating request with:", {
+  const handleCreateRequest = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    
+    console.log("🚀 Create request button clicked!");
+    console.log("Form state:", {
       name: newRequestName,
       method: newRequestMethod,
       url: newRequestUrl,
-      collectionId: selectedCollectionId
+      collectionId: selectedCollectionId,
+      nameLength: newRequestName.length,
+      urlLength: newRequestUrl.length
     });
 
-    if (!newRequestName.trim()) {
-      console.error("Request name is required");
-      return;
-    }
-    if (!newRequestUrl.trim()) {
-      console.error("Request URL is required");
-      return;
-    }
-    if (!selectedCollectionId) {
-      console.error("No collection selected");
+    // More detailed validation with console logs
+    if (!newRequestName || !newRequestName.trim()) {
+      console.error("❌ Request name is empty or only whitespace");
+      alert("Please enter a request name");
       return;
     }
     
+    if (!newRequestUrl || !newRequestUrl.trim()) {
+      console.error("❌ Request URL is empty or only whitespace");
+      alert("Please enter a request URL");
+      return;
+    }
+    
+    if (!selectedCollectionId) {
+      console.error("❌ No collection selected. Available collections:", collections);
+      alert("No collection selected");
+      return;
+    }
+    
+    console.log("✅ All validations passed, calling createRequest...");
+    
     try {
-      await createRequest(selectedCollectionId, newRequestName, newRequestMethod, newRequestUrl);
+      console.log("📞 Calling createRequest with params:", {
+        collectionId: selectedCollectionId,
+        name: newRequestName.trim(),
+        method: newRequestMethod,
+        url: newRequestUrl.trim()
+      });
+      
+      await createRequest(selectedCollectionId, newRequestName.trim(), newRequestMethod, newRequestUrl.trim());
+      
+      console.log("✅ Request created successfully, clearing form...");
       setNewRequestName("");
       setNewRequestUrl("");
       setNewRequestMethod("GET");
       setShowCreateRequest(false);
-      console.log("✅ Request created successfully");
+      
+      console.log("✅ Form cleared and modal closed");
     } catch (error) {
       console.error("❌ Failed to create request:", error);
-      // Show error to user (you could add a toast notification here)
+      console.error("Error details:", JSON.stringify(error, null, 2));
       alert(`Failed to create request: ${error}`);
     }
   };
@@ -258,7 +281,7 @@ export function CollectionsSidebar() {
         }}
         title="Create Request"
       >
-        <div className="space-y-5">
+        <form onSubmit={handleCreateRequest} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Request Name
@@ -266,9 +289,13 @@ export function CollectionsSidebar() {
             <Input
               placeholder="Get Users"
               value={newRequestName}
-              onChange={(e) => setNewRequestName(e.target.value)}
+              onChange={(e) => {
+                console.log("Name input changed:", e.target.value);
+                setNewRequestName(e.target.value);
+              }}
               autoFocus
               className="focus:ring-blue-500 focus:border-blue-500"
+              required
             />
           </div>
           <div>
@@ -278,7 +305,10 @@ export function CollectionsSidebar() {
             <select
               className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
               value={newRequestMethod}
-              onChange={(e) => setNewRequestMethod(e.target.value)}
+              onChange={(e) => {
+                console.log("Method changed:", e.target.value);
+                setNewRequestMethod(e.target.value);
+              }}
             >
               <option value="GET">GET</option>
               <option value="POST">POST</option>
@@ -296,14 +326,20 @@ export function CollectionsSidebar() {
             <Input
               placeholder="https://api.example.com/users"
               value={newRequestUrl}
-              onChange={(e) => setNewRequestUrl(e.target.value)}
+              onChange={(e) => {
+                console.log("URL input changed:", e.target.value);
+                setNewRequestUrl(e.target.value);
+              }}
               className="focus:ring-blue-500 focus:border-blue-500"
+              required
             />
           </div>
           <div className="flex gap-3 pt-2">
             <Button
+              type="button"
               variant="outline"
               onClick={() => {
+                console.log("Cancel button clicked");
                 setShowCreateRequest(false);
                 setNewRequestName("");
                 setNewRequestUrl("");
@@ -313,14 +349,19 @@ export function CollectionsSidebar() {
               Cancel
             </Button>
             <Button
-              onClick={handleCreateRequest}
+              type="submit"
               disabled={!newRequestName.trim() || !newRequestUrl.trim()}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+              onClick={(e) => {
+                console.log("Create Request button clicked directly");
+                e.preventDefault();
+                handleCreateRequest(e);
+              }}
             >
               Create Request
             </Button>
           </div>
-        </div>
+        </form>
       </Modal>
     </div>
   );
