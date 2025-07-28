@@ -74,42 +74,29 @@ export function HeadersTab({ tabId }: HeadersTabProps) {
   };
 
   return (
-    <div className="h-full bg-white flex flex-col">
-      <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900">Request Headers</h3>
-            <p className="text-xs text-gray-500 mt-1">
-              Headers allow you to provide additional information about the request.
-            </p>
-          </div>
-          <div className="text-xs text-gray-500">
-            {activeTab.headers.filter(h => h.enabled && h.key.trim()).length} active
-          </div>
+    <div className="h-full bg-white flex flex-col overflow-hidden">
+      {/* Quick Add Headers - Fixed at top */}
+      <div className="flex-shrink-0 px-3 sm:px-6 py-3 border-b border-gray-100 bg-gray-50">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-gray-600">Quick Add</span>
         </div>
-
-        {/* Common Headers Quick Add */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-xs font-medium text-gray-700">Quick Add</h4>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {COMMON_HEADERS.map((header) => (
-              <Button
-                key={header.key}
-                variant="outline"
-                size="sm"
-                onClick={() => addCommonHeader(header)}
-                className="h-6 text-xs px-2 bg-white hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700 border-gray-300"
-              >
-                {header.key}
-              </Button>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-1">
+          {COMMON_HEADERS.map((header) => (
+            <Button
+              key={header.key}
+              variant="outline"
+              size="sm"
+              onClick={() => addCommonHeader(header)}
+              className="h-6 text-xs px-2 bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 border-gray-300"
+            >
+              {header.key}
+            </Button>
+          ))}
         </div>
       </div>
       
-      <div className="flex-1 p-6 min-h-0">
+      {/* Headers Table - Scrollable */}
+      <div className="flex-1 p-3 sm:p-6 min-h-0 overflow-y-auto">
         <KeyValueEditor
           items={activeTab.headers}
           onAdd={addHeader}

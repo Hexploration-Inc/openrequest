@@ -7,7 +7,11 @@ import { Badge } from "../ui/badge";
 import { Modal } from "../ui/modal";
 import { Plus, Folder, FileText, ChevronRight, ChevronDown } from "lucide-react";
 
-export function CollectionsSidebar() {
+interface CollectionsSidebarProps {
+  collapsed?: boolean;
+}
+
+export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProps) {
   const {
     collections,
     requests,
@@ -97,6 +101,113 @@ export function CollectionsSidebar() {
       alert(`Failed to create request: ${error}`);
     }
   };
+
+  if (collapsed) {
+    return (
+      <div className="h-full flex flex-col bg-white">
+        {/* Collapsed Header */}
+        <div className="px-3 py-4 border-b border-slate-100">
+          <div className="flex justify-center">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowCreateCollection(true)}
+              className="h-8 w-8 p-0 rounded-lg hover:bg-slate-50 transition-colors"
+              title="Create Collection"
+            >
+              <Plus className="h-4 w-4 text-slate-600" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Collapsed Collections List */}
+        <div className="flex-1 overflow-y-auto py-2">
+          {collections.map((collection) => (
+            <div key={collection.id} className="mb-1 px-2">
+              <div
+                className={`w-10 h-10 rounded-lg cursor-pointer transition-all hover:bg-slate-50 flex items-center justify-center ${
+                  selectedCollectionId === collection.id
+                    ? "bg-blue-50 border border-blue-100"
+                    : ""
+                }`}
+                onClick={() => selectCollection(collection.id)}
+                title={collection.name}
+              >
+                <Folder className={`h-4 w-4 ${
+                  selectedCollectionId === collection.id ? 'text-blue-500' : 'text-slate-400'
+                }`} />
+              </div>
+            </div>
+          ))}
+
+          {collections.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-8 px-2">
+              <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center mb-2">
+                <Folder className="h-5 w-5 text-slate-300" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Modals remain the same */}
+        <Modal
+          isOpen={showCreateCollection}
+          onClose={() => {
+            setShowCreateCollection(false);
+            setNewCollectionName("");
+            setNewCollectionDescription("");
+          }}
+          title="Create Collection"
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Collection Name
+              </label>
+              <Input
+                placeholder="My API Collection"
+                value={newCollectionName}
+                onChange={(e) => setNewCollectionName(e.target.value)}
+                className="w-full"
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description (optional)
+              </label>
+              <Input
+                placeholder="A brief description of this collection"
+                value={newCollectionDescription}
+                onChange={(e) => setNewCollectionDescription(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreateCollection(false);
+                  setNewCollectionName("");
+                  setNewCollectionDescription("");
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateCollection}
+                disabled={!newCollectionName.trim()}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Create
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-white">

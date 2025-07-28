@@ -2,16 +2,16 @@ import { useTabsStore } from "../../lib/stores/tabs";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { BodyType } from "../../lib/types";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
-const BODY_TYPES: { value: BodyType; label: string; description: string }[] = [
-  { value: "none", label: "None", description: "No request body" },
-  { value: "json", label: "JSON", description: "application/json" },
-  { value: "xml", label: "XML", description: "application/xml" },
-  { value: "html", label: "HTML", description: "text/html" },
-  { value: "text", label: "Text", description: "text/plain" },
-  { value: "javascript", label: "JavaScript", description: "application/javascript" },
-  { value: "form-data", label: "Form Data", description: "multipart/form-data" },
-  { value: "x-www-form-urlencoded", label: "URL Encoded", description: "application/x-www-form-urlencoded" },
+// Text content types for the dropdown
+const TEXT_TYPES = [
+  { value: "text", label: "Text" },
+  { value: "javascript", label: "JavaScript" },
+  { value: "json", label: "JSON" },
+  { value: "html", label: "HTML" },
+  { value: "xml", label: "XML" },
 ];
 
 interface BodyTabProps {
@@ -20,11 +20,18 @@ interface BodyTabProps {
 
 export function BodyTab({ tabId }: BodyTabProps) {
   const { getActiveTab, updateTabData, markTabAsUnsaved } = useTabsStore();
+  const [showTextDropdown, setShowTextDropdown] = useState(false);
   
   const activeTab = getActiveTab();
   if (!activeTab || activeTab.id !== tabId) {
     return null;
   }
+
+  const handleBodyTypeChange = (type: BodyType) => {
+    updateTabData(tabId, { bodyType: type });
+    markTabAsUnsaved(tabId);
+    setShowTextDropdown(false);
+  };
 
   const handleFormatCode = () => {
     if (activeTab.bodyType === "json") {
@@ -48,130 +55,207 @@ export function BodyTab({ tabId }: BodyTabProps) {
         return '<!DOCTYPE html>\n<html>\n<head>\n  <title>Title</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>';
       case "javascript":
         return 'const data = {\n  message: "Hello World"\n};\n\nconsole.log(data);';
-      case "form-data":
-        return "Use the form below to add key-value pairs for multipart/form-data";
-      case "x-www-form-urlencoded":
-        return "key1=value1&key2=value2&key3=value3";
+      case "text":
+        return "Enter your text content here...";
       default:
         return "Enter your request body here...";
     }
   };
 
-  return (
-    <div className="h-full bg-white flex flex-col">
-      <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900">Request Body</h3>
-            <p className="text-xs text-gray-500 mt-1">
-              The request body contains the data sent to the server.
-            </p>
-          </div>
-          <div className="text-xs text-gray-500">
-            {activeTab.bodyType !== 'none' && activeTab.bodyContent ? 
-              `${new Blob([activeTab.bodyContent]).size} bytes` : 
-              'No body'
-            }
-          </div>
-        </div>
+  const isTextType = ["text", "javascript", "json", "html", "xml"].includes(activeTab.bodyType);
 
-        {/* Body Type Selector */}
-        <div>
-          <label className="text-xs font-medium text-gray-700 mb-3 block">Body Type</label>
-          <div className="grid grid-cols-4 gap-2 mb-2">
-            {BODY_TYPES.slice(0, 4).map((type) => (
-              <Button
-                key={type.value}
-                variant={activeTab.bodyType === type.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  updateTabData(tabId, { bodyType: type.value });
-                  markTabAsUnsaved(tabId);
-                }}
-                className={`justify-center h-8 text-xs ${
-                  activeTab.bodyType === type.value 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700'
-                }`}
+  return (
+    <div className="h-full bg-white flex flex-col overflow-hidden">
+      {/* Body Type Selection */}
+      <div className="flex-shrink-0 px-3 sm:px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
+          {/* None */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="bodyType"
+              checked={activeTab.bodyType === "none"}
+              onChange={() => handleBodyTypeChange("none")}
+              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">none</span>
+          </label>
+
+          {/* Form Data */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="bodyType"
+              checked={activeTab.bodyType === "form-data"}
+              onChange={() => handleBodyTypeChange("form-data")}
+              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">form-data</span>
+          </label>
+
+          {/* URL Encoded */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="bodyType"
+              checked={activeTab.bodyType === "x-www-form-urlencoded"}
+              onChange={() => handleBodyTypeChange("x-www-form-urlencoded")}
+              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">x-www-form-urlencoded</span>
+          </label>
+
+          {/* Raw */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="bodyType"
+              checked={isTextType}
+              onChange={() => {
+                if (!isTextType) {
+                  handleBodyTypeChange("text");
+                }
+              }}
+              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">raw</span>
+          </label>
+
+          {/* Binary */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="bodyType"
+              checked={activeTab.bodyType === "binary"}
+              onChange={() => handleBodyTypeChange("binary" as BodyType)}
+              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">binary</span>
+          </label>
+
+          {/* Text Type Dropdown - positioned on the right */}
+          {isTextType && (
+            <div className="relative ml-auto">
+              <button
+                onClick={() => setShowTextDropdown(!showTextDropdown)}
+                className="flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:text-blue-700 border border-transparent hover:border-gray-300 rounded transition-colors"
               >
-                {type.label}
-              </Button>
-            ))}
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {BODY_TYPES.slice(4).map((type) => (
-              <Button
-                key={type.value}
-                variant={activeTab.bodyType === type.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  updateTabData(tabId, { bodyType: type.value });
-                  markTabAsUnsaved(tabId);
-                }}
-                className={`justify-center h-8 text-xs ${
-                  activeTab.bodyType === type.value 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700'
-                }`}
-              >
-                {type.label}
-              </Button>
-            ))}
-          </div>
+                {TEXT_TYPES.find(t => t.value === activeTab.bodyType)?.label || "Text"}
+                <ChevronDown className="w-3 h-3" />
+              </button>
+
+              {showTextDropdown && (
+                <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]">
+                  {TEXT_TYPES.map((type) => (
+                    <button
+                      key={type.value}
+                      onClick={() => handleBodyTypeChange(type.value as BodyType)}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                        activeTab.bodyType === type.value ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                      }`}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Body Content */}
-      <div className="flex-1 p-6 min-h-0">
+      {/* Body Content Area */}
+      <div className="flex-1 p-3 sm:p-6 min-h-0 overflow-y-auto">
         {activeTab.bodyType === "none" ? (
-          <div className="h-full flex items-center justify-center text-gray-400 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-            <div className="text-center">
-              <div className="text-lg mb-2">📝</div>
-              <p className="text-sm">No body content for this request</p>
-              <p className="text-xs mt-1">Select a body type above to add content</p>
-            </div>
+          <div className="h-full flex items-center justify-center text-gray-500">
+            <p className="text-sm">This request does not have a body</p>
           </div>
         ) : activeTab.bodyType === "form-data" ? (
-          <div className="h-full flex flex-col">
+          <div className="h-full">
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start">
-                <div className="text-blue-800 text-sm">
-                  <strong>Coming Soon:</strong> Visual form-data editor. Use raw multipart format for now.
-                </div>
+              <div className="text-blue-800 text-sm">
+                <strong>Coming Soon:</strong> Visual form-data editor. Use raw format for now.
               </div>
             </div>
             <Textarea
-              placeholder="For now, use raw multipart format or switch to JSON/URL Encoded"
+              placeholder="For now, use raw multipart format"
               value={activeTab.bodyContent}
               onChange={(e) => {
                 updateTabData(tabId, { bodyContent: e.target.value });
                 markTabAsUnsaved(tabId);
               }}
-              className="flex-1 font-mono text-sm resize-none border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+              className="flex-1 h-64 font-mono text-sm resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500"
             />
+          </div>
+        ) : activeTab.bodyType === "x-www-form-urlencoded" ? (
+          <div className="h-full">
+            <Textarea
+              placeholder="key1=value1&key2=value2&key3=value3"
+              value={activeTab.bodyContent}
+              onChange={(e) => {
+                updateTabData(tabId, { bodyContent: e.target.value });
+                markTabAsUnsaved(tabId);
+              }}
+              className="w-full h-64 font-mono text-sm resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        ) : activeTab.bodyType === "binary" ? (
+          <div className="h-full">
+            <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="text-gray-700 text-sm">
+                <strong>Binary files:</strong> Select a file to upload as the request body.
+              </div>
+            </div>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+              <div className="text-gray-500">
+                <p className="text-sm mb-2">Click to select a file or drag and drop</p>
+                <input
+                  type="file"
+                  className="hidden"
+                  id="binary-file-input"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // For now, just store the file name as content
+                      updateTabData(tabId, { bodyContent: `[Binary file: ${file.name}]` });
+                      markTabAsUnsaved(tabId);
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="binary-file-input"
+                  className="inline-block px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 cursor-pointer transition-colors"
+                >
+                  Select File
+                </label>
+                {activeTab.bodyContent && (
+                  <p className="text-xs text-gray-600 mt-2">{activeTab.bodyContent}</p>
+                )}
+              </div>
+            </div>
           </div>
         ) : (
           <div className="h-full flex flex-col">
             {/* Toolbar */}
             <div className="flex items-center justify-between mb-3">
-              <div className="flex gap-2">
-                {/* Format Button for JSON */}
+              <div className="flex items-center gap-2">
                 {activeTab.bodyType === "json" && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleFormatCode}
-                    className="h-7 text-xs hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700"
+                    className="h-7 text-xs hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700"
                   >
-                    Format JSON
+                    Beautify
                   </Button>
                 )}
-              </div>
-              <div className="text-xs text-gray-500">
-                {activeTab.bodyContent ? `${activeTab.bodyContent.split('\n').length} lines` : '0 lines'}
+                <span className="text-xs text-gray-500">
+                  Line: 1
+                </span>
               </div>
             </div>
             
+            {/* Text Editor */}
             <div className="flex-1 border border-gray-300 rounded-lg overflow-hidden">
               <Textarea
                 placeholder={getPlaceholder()}
@@ -180,12 +264,20 @@ export function BodyTab({ tabId }: BodyTabProps) {
                   updateTabData(tabId, { bodyContent: e.target.value });
                   markTabAsUnsaved(tabId);
                 }}
-                className="h-full w-full font-mono text-sm resize-none border-0 focus:ring-0 focus:outline-orange-500"
+                className="h-full w-full font-mono text-sm resize-none border-0 focus:ring-0 focus:outline-none"
               />
             </div>
           </div>
         )}
       </div>
+
+      {/* Click outside to close dropdown */}
+      {showTextDropdown && (
+        <div 
+          className="fixed inset-0 z-0" 
+          onClick={() => setShowTextDropdown(false)}
+        />
+      )}
     </div>
   );
 }

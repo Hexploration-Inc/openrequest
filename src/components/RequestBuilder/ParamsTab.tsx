@@ -45,30 +45,16 @@ export function ParamsTab({ tabId }: ParamsTabProps) {
   };
 
   return (
-    <div className="h-full bg-white flex flex-col">
-      <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900">Query Parameters</h3>
-            <p className="text-xs text-gray-500 mt-1">
-              Parameters will be automatically URL-encoded and appended to the request URL.
-            </p>
-          </div>
-          <div className="text-xs text-gray-500">
-            {activeTab.params.filter(p => p.enabled && p.key.trim()).length} active
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex-1 p-6 min-h-0">
+    <div className="h-full bg-white flex flex-col overflow-hidden">
+      <div className="flex-1 p-3 sm:p-6 min-h-0 overflow-y-auto">
         <KeyValueEditor
           items={activeTab.params}
           onAdd={addParam}
           onUpdate={updateParam}
           onRemove={removeParam}
           placeholder={{
-            key: "Parameter name",
-            value: "Parameter value"
+            key: "Key",
+            value: "Value"
           }}
         />
       </div>
