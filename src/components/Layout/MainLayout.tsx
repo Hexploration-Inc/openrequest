@@ -86,10 +86,10 @@ export function MainLayout() {
 
   if (!isDbInitialized) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-[#121212] transition-colors duration-200">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Initializing database...</p>
+          <p className="text-gray-600 dark:text-[#9aa0a6]">Initializing database...</p>
         </div>
       </div>
     );
@@ -97,7 +97,7 @@ export function MainLayout() {
 
 
   return (
-    <div className="h-screen flex bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className="h-screen flex bg-gray-50 dark:bg-[#121212] transition-colors duration-200">
       {/* Mobile Overlay */}
       {!sidebarCollapsed && (
         <div 
@@ -112,26 +112,26 @@ export function MainLayout() {
           ${sidebarCollapsed ? 'w-0 lg:w-16' : `w-${Math.floor(sidebarWidth/4)*4} lg:w-80`}
           ${sidebarCollapsed ? 'lg:translate-x-0 -translate-x-full' : 'translate-x-0'}
           fixed lg:relative top-0 left-0 h-full
-          bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col shadow-lg lg:shadow-sm
+          bg-white dark:bg-[#1f1f1f] border-r border-gray-200 dark:border-[#404040] flex flex-col shadow-lg lg:shadow-sm
           transition-all duration-300 ease-in-out z-50
         `}
         style={{ width: sidebarCollapsed ? (isLargeScreen ? '64px' : '0px') : `${sidebarWidth}px` }}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#404040] bg-white dark:bg-[#1f1f1f]">
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
                 <div className="w-3 h-3 bg-white rounded-sm" />
               </div>
-              <span className="font-semibold text-gray-900 dark:text-gray-100">OpenRequest</span>
+              <span className="font-semibold text-gray-900 dark:text-[#e8eaed]">OpenRequest</span>
             </div>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleSidebar}
-            className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-[#383838]"
           >
             {sidebarCollapsed ? (
               <PanelLeftOpen className="h-4 w-4" />
@@ -150,12 +150,12 @@ export function MainLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
-        <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-[#1f1f1f] border-b border-gray-200 dark:border-[#404040]">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
               <div className="w-3 h-3 bg-white rounded-sm" />
             </div>
-            <span className="font-semibold text-gray-900 dark:text-gray-100">OpenRequest</span>
+            <span className="font-semibold text-gray-900 dark:text-[#e8eaed]">OpenRequest</span>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -188,7 +188,7 @@ export function MainLayout() {
         </div>
 
         {/* Request Tabs */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <div className="bg-white dark:bg-[#1f1f1f] border-b border-gray-200 dark:border-[#404040] flex justify-between items-center">
           <div className="flex-1">
             <RequestTabs />
           </div>
@@ -197,7 +197,7 @@ export function MainLayout() {
               variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="h-8 px-3 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+              className="h-8 px-3 text-gray-600 dark:text-[#9aa0a6] hover:text-gray-900 dark:hover:text-[#e8eaed]"
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
               {theme === 'light' ? <Moon className="h-4 w-4 mr-2" /> : <Sun className="h-4 w-4 mr-2" />}
@@ -207,7 +207,7 @@ export function MainLayout() {
               variant="ghost"
               size="sm"
               onClick={() => setShowHistory(true)}
-              className="h-8 px-3 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+              className="h-8 px-3 text-gray-600 dark:text-[#9aa0a6] hover:text-gray-900 dark:hover:text-[#e8eaed]"
             >
               <Clock className="h-4 w-4 mr-2" />
               History
@@ -218,12 +218,12 @@ export function MainLayout() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-h-0">
           {/* Request Builder */}
-          <div className="flex-1 min-h-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex-1 min-h-0 border-b border-gray-200 dark:border-[#404040] bg-white dark:bg-[#1f1f1f]">
             <RequestBuilder />
           </div>
 
           {/* Response Viewer */}
-          <div className="flex-1 min-h-0 bg-white dark:bg-gray-800">
+          <div className="flex-1 min-h-0 bg-white dark:bg-[#1f1f1f]">
             <ResponseViewer />
           </div>
         </div>

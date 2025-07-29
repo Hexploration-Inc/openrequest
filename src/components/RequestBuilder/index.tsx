@@ -53,7 +53,7 @@ export function RequestBuilder() {
   
   if (!activeTab) {
     return (
-      <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800">
+      <div className="h-full flex items-center justify-center text-gray-500 dark:text-[#9aa0a6] bg-white dark:bg-[#1f1f1f]">
         No request tab open
       </div>
     );
@@ -207,10 +207,10 @@ export function RequestBuilder() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
+    <div className="h-full flex flex-col bg-white dark:bg-[#1f1f1f]">
 
       {/* URL Bar */}
-      <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 bg-gray-50 dark:bg-gray-900">
+      <div className="border-b border-gray-200 dark:border-[#404040] px-6 py-4 bg-gray-50 dark:bg-[#121212]">
         <div className="flex gap-3 items-center">
           {/* Method Selector */}
           <div className="min-w-[90px]">
@@ -241,7 +241,7 @@ export function RequestBuilder() {
                 updateTabData(activeTab.id, { url: e.target.value });
                 markTabAsUnsaved(activeTab.id);
               }}
-              className="pr-24 font-mono text-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+              className="pr-24 font-mono text-sm border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:bg-[#2d2d2d] dark:text-[#e8eaed]"
             />
           </div>
 
@@ -251,7 +251,7 @@ export function RequestBuilder() {
               onClick={handleSaveRequest}
               disabled={activeTab.isSaving}
               variant="outline"
-              className="px-6 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium"
+              className="px-6 border-gray-300 dark:border-[#404040] hover:bg-gray-50 dark:hover:bg-[#383838] text-gray-700 dark:text-[#9aa0a6] font-medium"
               size="lg"
             >
               {activeTab.isSaving ? (
@@ -307,29 +307,29 @@ export function RequestBuilder() {
           }}
           className="h-full flex flex-col"
         >
-          <div className="bg-white dark:bg-gray-800">
-            <TabsList className="h-10 bg-transparent p-0 space-x-0 rounded-none w-full justify-start border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f]">
+            <TabsList className="h-10 bg-transparent p-0 space-x-0 rounded-none w-full justify-start border-b border-gray-200 dark:border-[#404040]">
               <TabsTrigger 
                 value="params" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
               >
                 Params
               </TabsTrigger>
               <TabsTrigger 
                 value="headers"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
               >
                 Headers
               </TabsTrigger>
               <TabsTrigger 
                 value="body"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
               >
                 Body
               </TabsTrigger>
               <TabsTrigger 
                 value="auth"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
               >
                 Auth
               </TabsTrigger>

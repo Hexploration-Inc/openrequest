@@ -65,9 +65,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
   const isTextType = ["text", "javascript", "json", "html", "xml"].includes(activeTab.bodyType);
 
   return (
-    <div className="h-full bg-white dark:bg-gray-800 flex flex-col overflow-hidden">
+    <div className="h-full bg-white dark:bg-[#1f1f1f] flex flex-col overflow-hidden">
       {/* Body Type Selection - Compact */}
-      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-[#404040]">
         <div className="flex items-center gap-4 flex-wrap">
           {/* None */}
           <label className="flex items-center gap-2 cursor-pointer">
@@ -76,9 +76,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
               name="bodyType"
               checked={activeTab.bodyType === "none"}
               onChange={() => handleBodyTypeChange("none")}
-              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-[#404040] focus:ring-blue-500 dark:bg-[#2d2d2d]"
             />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">none</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-[#9aa0a6]">none</span>
           </label>
 
           {/* Form Data */}
@@ -88,9 +88,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
               name="bodyType"
               checked={activeTab.bodyType === "form-data"}
               onChange={() => handleBodyTypeChange("form-data")}
-              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-[#404040] focus:ring-blue-500 dark:bg-[#2d2d2d]"
             />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">form-data</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-[#9aa0a6]">form-data</span>
           </label>
 
           {/* URL Encoded */}
@@ -100,9 +100,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
               name="bodyType"
               checked={activeTab.bodyType === "x-www-form-urlencoded"}
               onChange={() => handleBodyTypeChange("x-www-form-urlencoded")}
-              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-[#404040] focus:ring-blue-500 dark:bg-[#2d2d2d]"
             />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">x-www-form-urlencoded</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-[#9aa0a6]">x-www-form-urlencoded</span>
           </label>
 
           {/* Raw */}
@@ -116,9 +116,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
                   handleBodyTypeChange("text");
                 }
               }}
-              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-[#404040] focus:ring-blue-500 dark:bg-[#2d2d2d]"
             />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">raw</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-[#9aa0a6]">raw</span>
           </label>
 
           {/* Binary */}
@@ -128,9 +128,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
               name="bodyType"
               checked={activeTab.bodyType === "binary"}
               onChange={() => handleBodyTypeChange("binary" as BodyType)}
-              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-[#404040] focus:ring-blue-500 dark:bg-[#2d2d2d]"
             />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">binary</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-[#9aa0a6]">binary</span>
           </label>
 
           {/* Text Type Dropdown - positioned on the right */}
@@ -145,13 +145,13 @@ export function BodyTab({ tabId }: BodyTabProps) {
               </button>
 
               {showTextDropdown && (
-                <div className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-10 min-w-[120px]">
+                <div className="absolute top-full right-0 mt-1 bg-white dark:bg-[#2d2d2d] border border-gray-200 dark:border-[#404040] rounded-md shadow-lg z-10 min-w-[120px]">
                   {TEXT_TYPES.map((type) => (
                     <button
                       key={type.value}
                       onClick={() => handleBodyTypeChange(type.value as BodyType)}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors ${
-                        activeTab.bodyType === type.value ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-[#383838] transition-colors ${
+                        activeTab.bodyType === type.value ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : 'text-gray-700 dark:text-[#9aa0a6]'
                       }`}
                     >
                       {type.label}
@@ -167,7 +167,7 @@ export function BodyTab({ tabId }: BodyTabProps) {
       {/* Body Content Area - Compact */}
       <div className="flex-1 p-4 min-h-0 overflow-y-auto">
         {activeTab.bodyType === "none" ? (
-          <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+          <div className="h-full flex items-center justify-center text-gray-500 dark:text-[#9aa0a6]">
             <p className="text-sm">This request does not have a body</p>
           </div>
         ) : activeTab.bodyType === "form-data" ? (
@@ -184,7 +184,7 @@ export function BodyTab({ tabId }: BodyTabProps) {
                 updateTabData(tabId, { bodyContent: e.target.value });
                 markTabAsUnsaved(tabId);
               }}
-              className="flex-1 h-64 font-mono text-sm resize-none border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+              className="flex-1 h-64 font-mono text-sm resize-none border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:bg-[#2d2d2d] dark:text-[#e8eaed]"
             />
           </div>
         ) : activeTab.bodyType === "x-www-form-urlencoded" ? (
@@ -196,18 +196,18 @@ export function BodyTab({ tabId }: BodyTabProps) {
                 updateTabData(tabId, { bodyContent: e.target.value });
                 markTabAsUnsaved(tabId);
               }}
-              className="w-full h-64 font-mono text-sm resize-none border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+              className="w-full h-64 font-mono text-sm resize-none border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:bg-[#2d2d2d] dark:text-[#e8eaed]"
             />
           </div>
         ) : activeTab.bodyType === "binary" ? (
           <div className="h-full">
-            <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
-              <div className="text-gray-700 dark:text-gray-300 text-sm">
+            <div className="mb-4 p-3 bg-gray-50 dark:bg-[#2d2d2d] border border-gray-200 dark:border-[#404040] rounded-lg">
+              <div className="text-gray-700 dark:text-[#9aa0a6] text-sm">
                 <strong>Binary files:</strong> Select a file to upload as the request body.
               </div>
             </div>
-            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-              <div className="text-gray-500 dark:text-gray-400">
+            <div className="border-2 border-dashed border-gray-300 dark:border-[#404040] rounded-lg p-8 text-center">
+              <div className="text-gray-500 dark:text-[#9aa0a6]">
                 <p className="text-sm mb-2">Click to select a file or drag and drop</p>
                 <input
                   type="file"
@@ -229,7 +229,7 @@ export function BodyTab({ tabId }: BodyTabProps) {
                   Select File
                 </label>
                 {activeTab.bodyContent && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">{activeTab.bodyContent}</p>
+                  <p className="text-xs text-gray-600 dark:text-[#9aa0a6] mt-2">{activeTab.bodyContent}</p>
                 )}
               </div>
             </div>
@@ -249,14 +249,14 @@ export function BodyTab({ tabId }: BodyTabProps) {
                     Beautify
                   </Button>
                 )}
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-gray-500 dark:text-[#9aa0a6]">
                   Line: 1
                 </span>
               </div>
             </div>
             
             {/* Text Editor */}
-            <div className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+            <div className="flex-1 border border-gray-300 dark:border-[#404040] rounded-lg overflow-hidden">
               <Textarea
                 placeholder={getPlaceholder()}
                 value={activeTab.bodyContent}
@@ -264,7 +264,7 @@ export function BodyTab({ tabId }: BodyTabProps) {
                   updateTabData(tabId, { bodyContent: e.target.value });
                   markTabAsUnsaved(tabId);
                 }}
-                className="h-full w-full font-mono text-sm resize-none border-0 focus:ring-0 focus:outline-none dark:bg-gray-800 dark:text-gray-100"
+                className="h-full w-full font-mono text-sm resize-none border-0 focus:ring-0 focus:outline-none dark:bg-[#1f1f1f] dark:text-[#e8eaed]"
               />
             </div>
           </div>

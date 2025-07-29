@@ -47,17 +47,17 @@
   --color-status-info: #3b82f6;
   --color-status-info-bg: #dbeafe;
 
-  /* Semantic Grays */
-  --color-gray-50: #f8fafc;
-  --color-gray-100: #f1f5f9;
-  --color-gray-200: #e2e8f0;
-  --color-gray-300: #cbd5e1;
-  --color-gray-400: #94a3b8;
-  --color-gray-500: #64748b;
-  --color-gray-600: #475569;
-  --color-gray-700: #334155;
-  --color-gray-800: #1e293b;
-  --color-gray-900: #0f172a;
+  /* Semantic Grays - Postman-inspired matte black/grey palette */
+  --color-gray-50: #f8f9fa;
+  --color-gray-100: #f1f3f4;
+  --color-gray-200: #e3e5e8;
+  --color-gray-300: #c1c7cd;
+  --color-gray-400: #9aa0a6;
+  --color-gray-500: #5f6368;
+  --color-gray-600: #3c4043;
+  --color-gray-700: #2d2d2d;
+  --color-gray-800: #1f1f1f;
+  --color-gray-900: #121212;
 
   /* Typography */
   --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -136,4 +136,14 @@
   --sidebar-width-expanded: 320px;
   --header-height: 64px;
   --tab-height: 48px;
+
+  /* Dark Theme Specific Colors */
+  --color-dark-bg-primary: #121212;
+  --color-dark-bg-secondary: #1f1f1f;
+  --color-dark-bg-tertiary: #2d2d2d;
+  --color-dark-surface: #383838;
+  --color-dark-border: #404040;
+  --color-dark-text-primary: #e8eaed;
+  --color-dark-text-secondary: #9aa0a6;
+  --color-dark-text-muted: #5f6368;
 }
