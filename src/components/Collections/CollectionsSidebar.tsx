@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCollectionsStore } from "../../lib/stores/collections";
 import { useTabsStore } from "../../lib/stores/tabs";
+import { useToast } from "../ui/toast";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
@@ -22,6 +23,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
   } = useCollectionsStore();
 
   const { openRequestInTab } = useTabsStore();
+  const { success, error } = useToast();
 
   const [showCreateCollection, setShowCreateCollection] = useState(false);
   const [showCreateRequest, setShowCreateRequest] = useState(false);
@@ -39,8 +41,10 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
       setNewCollectionName("");
       setNewCollectionDescription("");
       setShowCreateCollection(false);
-    } catch (error) {
-      console.error("Failed to create collection:", error);
+      success("Collection created", `"${newCollectionName}" has been created successfully`);
+    } catch (err) {
+      console.error("Failed to create collection:", err);
+      error("Failed to create collection", err instanceof Error ? err.message : "Unknown error occurred");
     }
   };
 
@@ -60,19 +64,19 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
     // More detailed validation with console logs
     if (!newRequestName || !newRequestName.trim()) {
       console.error("❌ Request name is empty or only whitespace");
-      alert("Please enter a request name");
+      error("Validation Error", "Please enter a request name");
       return;
     }
     
     if (!newRequestUrl || !newRequestUrl.trim()) {
       console.error("❌ Request URL is empty or only whitespace");
-      alert("Please enter a request URL");
+      error("Validation Error", "Please enter a request URL");
       return;
     }
     
     if (!selectedCollectionId) {
       console.error("❌ No collection selected. Available collections:", collections);
-      alert("No collection selected");
+      error("Validation Error", "No collection selected");
       return;
     }
     
@@ -93,12 +97,13 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
       setNewRequestUrl("");
       setNewRequestMethod("GET");
       setShowCreateRequest(false);
+      success("Request created", `"${newRequestName}" has been created successfully`);
       
       console.log("✅ Form cleared and modal closed");
-    } catch (error) {
-      console.error("❌ Failed to create request:", error);
-      console.error("Error details:", JSON.stringify(error, null, 2));
-      alert(`Failed to create request: ${error}`);
+    } catch (err) {
+      console.error("❌ Failed to create request:", err);
+      console.error("Error details:", JSON.stringify(err, null, 2));
+      error("Failed to create request", err instanceof Error ? err.message : "Unknown error occurred");
     }
   };
 

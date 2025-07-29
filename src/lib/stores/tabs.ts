@@ -32,6 +32,7 @@ interface TabsState {
   // Actions
   openRequestInTab: (request: any) => void;
   openNewTab: () => void;
+  openNewTabWithRequest: (requestData: Partial<RequestTab>) => void;
   closeTab: (tabId: string) => void;
   setActiveTab: (tabId: string) => void;
   updateTabData: (tabId: string, data: Partial<RequestTab>, markUnsaved?: boolean) => void;
@@ -146,6 +147,24 @@ export const useTabsStore = create<TabsState>((set, get) => ({
   openNewTab: () => {
     const { tabs } = get();
     const newTab = createEmptyTab();
+    
+    set({
+      tabs: [...tabs, newTab],
+      activeTabId: newTab.id,
+    });
+  },
+
+  openNewTabWithRequest: (requestData) => {
+    const { tabs } = get();
+    const newTab = {
+      ...createEmptyTab(requestData.name || 'New Request'),
+      ...requestData,
+      id: generateId(),
+      isUnsaved: true,
+      requestId: null,
+      collectionId: null,
+      createdAt: null,
+    };
     
     set({
       tabs: [...tabs, newTab],

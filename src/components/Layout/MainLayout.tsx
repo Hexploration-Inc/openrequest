@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useCollectionsStore } from "../../lib/stores/collections";
 import { useTabsStore } from "../../lib/stores/tabs";
 import { useUIStore } from "../../lib/stores/ui";
+import { useKeyboardShortcuts, KEYBOARD_SHORTCUTS } from "../../lib/hooks/useKeyboardShortcuts";
 import { CollectionsSidebar } from "../Collections/CollectionsSidebar";
 import { RequestBuilder } from "../RequestBuilder";
 import { ResponseViewer } from "../ResponseViewer";
 import { RequestTabs } from "../RequestTabs";
-import { Menu, X, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { HistoryPanel } from "../History/HistoryPanel";
+import { Menu, X, PanelLeftClose, PanelLeftOpen, Clock } from "lucide-react";
 import { Button } from "../ui/button";
 
 export function MainLayout() {
@@ -14,9 +16,29 @@ export function MainLayout() {
   const isDbInitialized = useCollectionsStore((state) => state.isDbInitialized);
   const collections = useCollectionsStore((state) => state.collections);
   const selectedCollectionId = useCollectionsStore((state) => state.selectedCollectionId);
-  const { openNewTab, tabs } = useTabsStore();
+  const { openNewTab, tabs, closeTab, getActiveTab } = useTabsStore();
   const { sidebarCollapsed, sidebarWidth, toggleSidebar, setSidebarCollapsed } = useUIStore();
   const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      ...KEYBOARD_SHORTCUTS.NEW_REQUEST,
+      action: () => openNewTab(),
+    },
+    {
+      ...KEYBOARD_SHORTCUTS.TOGGLE_SIDEBAR,
+      action: () => toggleSidebar(),
+    },
+    {
+      ...KEYBOARD_SHORTCUTS.CLOSE_TAB,
+      action: () => {
+        const activeTab = getActiveTab();
+        if (activeTab) closeTab(activeTab.id);
+      },
+    },
+  ]);
 
   // Handle responsive sidebar on window resize
   useEffect(() => {
@@ -133,19 +155,43 @@ export function MainLayout() {
             </div>
             <span className="font-semibold text-gray-900">OpenRequest</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleSidebar}
-            className="h-8 w-8 p-0"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowHistory(true)}
+              className="h-8 w-8 p-0"
+              title="Request History"
+            >
+              <Clock className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSidebar}
+              className="h-8 w-8 p-0"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Request Tabs */}
-        <div className="bg-white border-b border-gray-200">
-          <RequestTabs />
+        <div className="bg-white border-b border-gray-200 flex justify-between items-center">
+          <div className="flex-1">
+            <RequestTabs />
+          </div>
+          <div className="hidden lg:flex items-center pr-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowHistory(true)}
+              className="h-8 px-3 text-gray-600 hover:text-gray-900"
+            >
+              <Clock className="h-4 w-4 mr-2" />
+              History
+            </Button>
+          </div>
         </div>
         
         {/* Main Content Area */}
@@ -161,6 +207,12 @@ export function MainLayout() {
           </div>
         </div>
       </div>
+
+      {/* History Panel */}
+      <HistoryPanel
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+      />
     </div>
   );
 }

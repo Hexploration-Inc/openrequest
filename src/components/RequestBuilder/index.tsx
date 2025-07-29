@@ -1,5 +1,8 @@
 import { useTabsStore } from "../../lib/stores/tabs";
 import { useCollectionsStore } from "../../lib/stores/collections";
+import { useHistoryStore } from "../../lib/stores/history";
+import { useToast } from "../ui/toast";
+import { useKeyboardShortcuts, KEYBOARD_SHORTCUTS } from "../../lib/hooks/useKeyboardShortcuts";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select } from "../ui/select";
@@ -23,8 +26,30 @@ const HTTP_METHOD_OPTIONS = HTTP_METHODS.map(method => ({
 export function RequestBuilder() {
   const { getActiveTab, updateTabData, markTabAsUnsaved, markTabAsSaved } = useTabsStore();
   const { loadRequestsForCollection } = useCollectionsStore();
+  const { addHistoryEntry } = useHistoryStore();
+  const { success, error } = useToast();
   
   const activeTab = getActiveTab();
+
+  // Keyboard shortcuts for this component
+  useKeyboardShortcuts([
+    {
+      ...KEYBOARD_SHORTCUTS.SEND_REQUEST,
+      action: () => {
+        if (activeTab && activeTab.url.trim() && !activeTab.isLoading) {
+          handleSendRequest();
+        }
+      },
+    },
+    {
+      ...KEYBOARD_SHORTCUTS.SAVE_REQUEST,
+      action: () => {
+        if (activeTab && activeTab.requestId && !activeTab.isSaving) {
+          handleSaveRequest();
+        }
+      },
+    },
+  ]);
   
   if (!activeTab) {
     return (
@@ -36,7 +61,7 @@ export function RequestBuilder() {
 
   const handleSendRequest = async () => {
     if (!activeTab.url.trim()) {
-      console.error('URL is required');
+      error('Invalid URL', 'Please enter a valid URL to send the request');
       return;
     }
 
@@ -95,16 +120,31 @@ export function RequestBuilder() {
           size,
         },
       }, false);
-    } catch (error) {
-      console.error('Request failed:', error);
+
+      // Add to history
+      addHistoryEntry({
+        method: activeTab.method,
+        url: activeTab.url,
+        status: response.status,
+        responseTime,
+        size,
+        params: paramsObj,
+        headers: headersObj,
+        bodyContent: requestBody,
+        response,
+      });
+
+      success('Request completed', `${activeTab.method} request to ${activeTab.url} completed successfully`);
+    } catch (err) {
+      console.error('Request failed:', err);
       updateTabData(activeTab.id, { isLoading: false }, false);
-      // TODO: Show error toast
+      error('Request failed', err instanceof Error ? err.message : 'An unexpected error occurred');
     }
   };
 
   const handleSaveRequest = async () => {
     if (!activeTab.requestId || !activeTab.collectionId) {
-      console.error('Cannot save: missing request ID or collection ID');
+      error('Cannot save request', 'Missing request ID or collection ID');
       return;
     }
     
@@ -157,11 +197,12 @@ export function RequestBuilder() {
         loadRequestsForCollection(activeTab.collectionId);
       }
       
+      success('Request saved', `"${activeTab.name}" has been saved successfully`);
       console.log('✅ Save completed successfully');
-    } catch (error) {
-      console.error('❌ Failed to save request:', error);
+    } catch (err) {
+      console.error('❌ Failed to save request:', err);
       updateTabData(activeTab.id, { isSaving: false }, false);
-      // TODO: Show error toast
+      error('Save failed', err instanceof Error ? err.message : 'An unexpected error occurred');
     }
   };
 
