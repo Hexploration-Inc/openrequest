@@ -74,11 +74,11 @@ export function HeadersTab({ tabId }: HeadersTabProps) {
   };
 
   return (
-    <div className="h-full bg-white flex flex-col overflow-hidden">
+    <div className="h-full bg-white dark:bg-gray-800 flex flex-col overflow-hidden">
       {/* Quick Add Headers - Compact */}
-      <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+      <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-medium text-gray-500">Quick Add</span>
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Quick Add</span>
         </div>
         <div className="flex flex-wrap gap-1">
           {COMMON_HEADERS.map((header) => (
@@ -87,7 +87,7 @@ export function HeadersTab({ tabId }: HeadersTabProps) {
               variant="outline"
               size="sm"
               onClick={() => addCommonHeader(header)}
-              className="h-5 text-xs px-1.5 bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 border-gray-300"
+              className="h-5 text-xs px-1.5 bg-white dark:bg-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900 hover:border-blue-200 dark:hover:border-blue-700 hover:text-blue-700 dark:hover:text-blue-300 border-gray-300 dark:border-gray-500 dark:text-gray-200"
             >
               {header.key}
             </Button>

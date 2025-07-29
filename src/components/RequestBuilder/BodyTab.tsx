@@ -65,9 +65,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
   const isTextType = ["text", "javascript", "json", "html", "xml"].includes(activeTab.bodyType);
 
   return (
-    <div className="h-full bg-white flex flex-col overflow-hidden">
+    <div className="h-full bg-white dark:bg-gray-800 flex flex-col overflow-hidden">
       {/* Body Type Selection - Compact */}
-      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200">
+      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-4 flex-wrap">
           {/* None */}
           <label className="flex items-center gap-2 cursor-pointer">
@@ -76,9 +76,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
               name="bodyType"
               checked={activeTab.bodyType === "none"}
               onChange={() => handleBodyTypeChange("none")}
-              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
             />
-            <span className="text-sm font-medium text-gray-700">none</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">none</span>
           </label>
 
           {/* Form Data */}
@@ -88,9 +88,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
               name="bodyType"
               checked={activeTab.bodyType === "form-data"}
               onChange={() => handleBodyTypeChange("form-data")}
-              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
             />
-            <span className="text-sm font-medium text-gray-700">form-data</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">form-data</span>
           </label>
 
           {/* URL Encoded */}
@@ -100,9 +100,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
               name="bodyType"
               checked={activeTab.bodyType === "x-www-form-urlencoded"}
               onChange={() => handleBodyTypeChange("x-www-form-urlencoded")}
-              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
             />
-            <span className="text-sm font-medium text-gray-700">x-www-form-urlencoded</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">x-www-form-urlencoded</span>
           </label>
 
           {/* Raw */}
@@ -116,9 +116,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
                   handleBodyTypeChange("text");
                 }
               }}
-              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
             />
-            <span className="text-sm font-medium text-gray-700">raw</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">raw</span>
           </label>
 
           {/* Binary */}
@@ -128,9 +128,9 @@ export function BodyTab({ tabId }: BodyTabProps) {
               name="bodyType"
               checked={activeTab.bodyType === "binary"}
               onChange={() => handleBodyTypeChange("binary" as BodyType)}
-              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:bg-gray-700"
             />
-            <span className="text-sm font-medium text-gray-700">binary</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">binary</span>
           </label>
 
           {/* Text Type Dropdown - positioned on the right */}
@@ -138,20 +138,20 @@ export function BodyTab({ tabId }: BodyTabProps) {
             <div className="relative ml-auto">
               <button
                 onClick={() => setShowTextDropdown(!showTextDropdown)}
-                className="flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:text-blue-700 border border-transparent hover:border-gray-300 rounded transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 border border-transparent hover:border-gray-300 dark:hover:border-gray-600 rounded transition-colors"
               >
                 {TEXT_TYPES.find(t => t.value === activeTab.bodyType)?.label || "Text"}
                 <ChevronDown className="w-3 h-3" />
               </button>
 
               {showTextDropdown && (
-                <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]">
+                <div className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-10 min-w-[120px]">
                   {TEXT_TYPES.map((type) => (
                     <button
                       key={type.value}
                       onClick={() => handleBodyTypeChange(type.value as BodyType)}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                        activeTab.bodyType === type.value ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors ${
+                        activeTab.bodyType === type.value ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {type.label}
@@ -167,13 +167,13 @@ export function BodyTab({ tabId }: BodyTabProps) {
       {/* Body Content Area - Compact */}
       <div className="flex-1 p-4 min-h-0 overflow-y-auto">
         {activeTab.bodyType === "none" ? (
-          <div className="h-full flex items-center justify-center text-gray-500">
+          <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
             <p className="text-sm">This request does not have a body</p>
           </div>
         ) : activeTab.bodyType === "form-data" ? (
           <div className="h-full">
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="text-blue-800 text-sm">
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
+              <div className="text-blue-800 dark:text-blue-200 text-sm">
                 <strong>Coming Soon:</strong> Visual form-data editor. Use raw format for now.
               </div>
             </div>
@@ -184,7 +184,7 @@ export function BodyTab({ tabId }: BodyTabProps) {
                 updateTabData(tabId, { bodyContent: e.target.value });
                 markTabAsUnsaved(tabId);
               }}
-              className="flex-1 h-64 font-mono text-sm resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              className="flex-1 h-64 font-mono text-sm resize-none border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
             />
           </div>
         ) : activeTab.bodyType === "x-www-form-urlencoded" ? (
@@ -196,18 +196,18 @@ export function BodyTab({ tabId }: BodyTabProps) {
                 updateTabData(tabId, { bodyContent: e.target.value });
                 markTabAsUnsaved(tabId);
               }}
-              className="w-full h-64 font-mono text-sm resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              className="w-full h-64 font-mono text-sm resize-none border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
             />
           </div>
         ) : activeTab.bodyType === "binary" ? (
           <div className="h-full">
-            <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-              <div className="text-gray-700 text-sm">
+            <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+              <div className="text-gray-700 dark:text-gray-300 text-sm">
                 <strong>Binary files:</strong> Select a file to upload as the request body.
               </div>
             </div>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              <div className="text-gray-500">
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+              <div className="text-gray-500 dark:text-gray-400">
                 <p className="text-sm mb-2">Click to select a file or drag and drop</p>
                 <input
                   type="file"
@@ -224,12 +224,12 @@ export function BodyTab({ tabId }: BodyTabProps) {
                 />
                 <label
                   htmlFor="binary-file-input"
-                  className="inline-block px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 cursor-pointer transition-colors"
+                  className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-sm rounded cursor-pointer transition-colors"
                 >
                   Select File
                 </label>
                 {activeTab.bodyContent && (
-                  <p className="text-xs text-gray-600 mt-2">{activeTab.bodyContent}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">{activeTab.bodyContent}</p>
                 )}
               </div>
             </div>
@@ -244,19 +244,19 @@ export function BodyTab({ tabId }: BodyTabProps) {
                     variant="outline"
                     size="sm"
                     onClick={handleFormatCode}
-                    className="h-7 text-xs hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700"
+                    className="h-7 text-xs hover:bg-blue-50 dark:hover:bg-blue-900 hover:border-blue-200 dark:hover:border-blue-700 hover:text-blue-700 dark:hover:text-blue-300"
                   >
                     Beautify
                   </Button>
                 )}
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   Line: 1
                 </span>
               </div>
             </div>
             
             {/* Text Editor */}
-            <div className="flex-1 border border-gray-300 rounded-lg overflow-hidden">
+            <div className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
               <Textarea
                 placeholder={getPlaceholder()}
                 value={activeTab.bodyContent}
@@ -264,7 +264,7 @@ export function BodyTab({ tabId }: BodyTabProps) {
                   updateTabData(tabId, { bodyContent: e.target.value });
                   markTabAsUnsaved(tabId);
                 }}
-                className="h-full w-full font-mono text-sm resize-none border-0 focus:ring-0 focus:outline-none"
+                className="h-full w-full font-mono text-sm resize-none border-0 focus:ring-0 focus:outline-none dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
           </div>
