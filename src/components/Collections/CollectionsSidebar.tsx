@@ -27,11 +27,28 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
 
   const [showCreateCollection, setShowCreateCollection] = useState(false);
   const [showCreateRequest, setShowCreateRequest] = useState(false);
+  const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
   const [newCollectionName, setNewCollectionName] = useState("");
   const [newCollectionDescription, setNewCollectionDescription] = useState("");
   const [newRequestName, setNewRequestName] = useState("");
   const [newRequestMethod, setNewRequestMethod] = useState("GET");
   const [newRequestUrl, setNewRequestUrl] = useState("");
+
+  const toggleCollectionExpanded = (collectionId: string) => {
+    setExpandedCollections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(collectionId)) {
+        newSet.delete(collectionId);
+      } else {
+        newSet.add(collectionId);
+      }
+      return newSet;
+    });
+  };
+
+  const isCollectionExpanded = (collectionId: string) => {
+    return expandedCollections.has(collectionId);
+  };
 
   const handleCreateCollection = async () => {
     if (!newCollectionName.trim()) return;
@@ -237,22 +254,32 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
           <div key={collection.id} className="mb-1">
             {/* Collection Header */}
             <div
-              className={`group flex items-center gap-3 px-4 py-3 mx-2 rounded-lg cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-[#383838] ${
+              className={`group flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-all hover:bg-slate-50 dark:hover:bg-[#383838] ${
                 selectedCollectionId === collection.id
                   ? "bg-blue-50 dark:bg-blue-900 border border-blue-100 dark:border-blue-800"
                   : ""
               }`}
-              onClick={() => selectCollection(collection.id)}
             >
               <div className="flex items-center gap-2 text-slate-400 dark:text-[#5f6368]">
-                {selectedCollectionId === collection.id ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleCollectionExpanded(collection.id);
+                  }}
+                  className="p-0.5 hover:bg-slate-100 dark:hover:bg-[#404040] rounded"
+                >
+                  {isCollectionExpanded(collection.id) ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
                 <Folder className={`h-4 w-4 ${selectedCollectionId === collection.id ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-[#5f6368]'}`} />
               </div>
-              <div className="flex-1 min-w-0">
+              <button
+                onClick={() => selectCollection(collection.id)}
+                className="flex-1 min-w-0 text-left"
+              >
                 <div className={`font-medium text-sm truncate ${
                   selectedCollectionId === collection.id ? 'text-blue-900 dark:text-blue-100' : 'text-slate-900 dark:text-[#e8eaed]'
                 }`}>
@@ -261,11 +288,11 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                 {collection.description && (
                   <div className="text-xs text-slate-500 dark:text-[#9aa0a6] truncate mt-0.5">{collection.description}</div>
                 )}
-              </div>
+              </button>
             </div>
 
             {/* Requests List */}
-            {selectedCollectionId === collection.id && (
+            {isCollectionExpanded(collection.id) && (
               <div className="ml-6 space-y-1">
                 {requests.map((request) => (
                   <div
