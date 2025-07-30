@@ -50,12 +50,14 @@ export function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
 
   const getMethodColor = (method: HttpMethod) => {
     switch (method) {
-      case 'GET': return 'bg-green-100 text-green-700 border-green-200';
-      case 'POST': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'PUT': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'DELETE': return 'bg-red-100 text-red-700 border-red-200';
-      case 'PATCH': return 'bg-purple-100 text-purple-700 border-purple-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'GET': return 'text-emerald-600 dark:text-emerald-400';
+      case 'POST': return 'text-blue-600 dark:text-blue-400';
+      case 'PUT': return 'text-amber-600 dark:text-amber-400';
+      case 'DELETE': return 'text-red-600 dark:text-red-400';
+      case 'PATCH': return 'text-purple-600 dark:text-purple-400';
+      case 'HEAD': return 'text-slate-600 dark:text-slate-400';
+      case 'OPTIONS': return 'text-slate-600 dark:text-slate-400';
+      default: return 'text-slate-600 dark:text-slate-400';
     }
   };
 
@@ -150,9 +152,9 @@ export function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
                     <div className="flex-1 min-w-0">
                       {/* Method and Status */}
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge className={`text-xs font-medium ${getMethodColor(entry.method)}`}>
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-[#404040] bg-slate-50 dark:bg-[#2a2a2a] ${getMethodColor(entry.method)}`}>
                           {entry.method}
-                        </Badge>
+                        </span>
                         {entry.status && (
                           <Badge className={`text-xs ${getStatusColor(entry.status)}`}>
                             {entry.status}

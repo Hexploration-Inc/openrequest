@@ -213,7 +213,7 @@ export function RequestBuilder() {
       <div className="border-b border-gray-200 dark:border-[#404040] px-6 py-4 bg-gray-50 dark:bg-[#121212]">
         <div className="flex gap-3 items-center">
           {/* Method Selector */}
-          <div className="min-w-[90px]">
+          <div className="shrink-0">
             <Select
               value={activeTab.method}
               onValueChange={(value) => {
@@ -221,14 +221,7 @@ export function RequestBuilder() {
                 markTabAsUnsaved(activeTab.id);
               }}
               options={HTTP_METHOD_OPTIONS}
-              className={`text-sm font-semibold ${
-                activeTab.method === 'GET' ? '[&>button]:bg-green-100 [&>button]:text-green-800 [&>button]:border-green-200' :
-                activeTab.method === 'POST' ? '[&>button]:bg-blue-100 [&>button]:text-blue-800 [&>button]:border-blue-200' :
-                activeTab.method === 'PUT' ? '[&>button]:bg-orange-100 [&>button]:text-orange-800 [&>button]:border-orange-200' :
-                activeTab.method === 'DELETE' ? '[&>button]:bg-red-100 [&>button]:text-red-800 [&>button]:border-red-200' :
-                activeTab.method === 'PATCH' ? '[&>button]:bg-purple-100 [&>button]:text-purple-800 [&>button]:border-purple-200' :
-                '[&>button]:bg-gray-100 [&>button]:text-gray-800 [&>button]:border-gray-200'
-              }`}
+              variant="minimal"
             />
           </div>
 

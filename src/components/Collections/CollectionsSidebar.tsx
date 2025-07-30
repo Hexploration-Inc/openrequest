@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { Modal } from "../ui/modal";
+import { Select } from "../ui/select";
 import { Plus, Folder, FileText, ChevronRight, ChevronDown } from "lucide-react";
 
 interface CollectionsSidebarProps {
@@ -179,33 +180,34 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
             setNewCollectionName("");
             setNewCollectionDescription("");
           }}
-          title="Create Collection"
+          title="Create New Collection"
+          size="medium"
         >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
-                Collection Name
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-[#e8eaed]">
+                Name *
               </label>
               <Input
-                placeholder="My API Collection"
+                placeholder="Enter collection name"
                 value={newCollectionName}
                 onChange={(e) => setNewCollectionName(e.target.value)}
-                className="w-full"
+                className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
                 autoFocus
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
-                Description (optional)
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-[#e8eaed]">
+                Description
               </label>
               <Input
-                placeholder="A brief description of this collection"
+                placeholder="Add a description for this collection"
                 value={newCollectionDescription}
                 onChange={(e) => setNewCollectionDescription(e.target.value)}
-                className="w-full"
+                className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
               />
             </div>
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -213,16 +215,16 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                   setNewCollectionName("");
                   setNewCollectionDescription("");
                 }}
-                className="flex-1"
+                className="flex-1 h-10 border-slate-300 dark:border-[#404040] hover:bg-slate-50 dark:hover:bg-[#2a2a2a] text-slate-700 dark:text-[#e8eaed]"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleCreateCollection}
                 disabled={!newCollectionName.trim()}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                className="flex-1 h-10 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 disabled:text-slate-500 text-white font-medium shadow-sm transition-all"
               >
-                Create
+                Create Collection
               </Button>
             </div>
           </div>
@@ -301,19 +303,17 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                     onClick={() => openRequestInTab(request)}
                   >
                     <FileText className="h-3.5 w-3.5 text-slate-400 dark:text-[#5f6368] flex-shrink-0" />
-                    <Badge 
-                      variant="outline" 
-                      className={`text-xs px-2 py-0.5 font-medium border rounded-full ${
-                        request.method === 'GET' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                        request.method === 'POST' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                        request.method === 'PUT' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                        request.method === 'DELETE' ? 'bg-red-50 text-red-700 border-red-200' :
-                        request.method === 'PATCH' ? 'bg-purple-50 text-purple-700 border-purple-200' :
-                        'bg-slate-50 text-slate-700 border-slate-200'
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-[#404040] bg-slate-50 dark:bg-[#2a2a2a] ${
+                        request.method === 'GET' ? 'text-emerald-600 dark:text-emerald-400' :
+                        request.method === 'POST' ? 'text-blue-600 dark:text-blue-400' :
+                        request.method === 'PUT' ? 'text-amber-600 dark:text-amber-400' :
+                        request.method === 'DELETE' ? 'text-red-600 dark:text-red-400' :
+                        request.method === 'PATCH' ? 'text-purple-600 dark:text-purple-400' :
+                        'text-slate-600 dark:text-slate-400'
                       }`}
                     >
                       {request.method}
-                    </Badge>
+                    </span>
                     <span className="text-sm text-slate-700 dark:text-[#9aa0a6] truncate flex-1 font-medium">
                       {request.name}
                     </span>
@@ -366,30 +366,31 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
           setNewCollectionName("");
           setNewCollectionDescription("");
         }}
-        title="Create Collection"
+        title="Create New Collection"
+        size="medium"
       >
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-[#9aa0a6] mb-2">
-              Collection Name
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-[#e8eaed]">
+              Name *
             </label>
             <Input
-              placeholder="My API Collection"
+              placeholder="Enter collection name"
               value={newCollectionName}
               onChange={(e) => setNewCollectionName(e.target.value)}
               autoFocus
-              className="focus:ring-blue-500 focus:border-blue-500"
+              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-[#9aa0a6] mb-2">
-              Description (optional)
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-[#e8eaed]">
+              Description
             </label>
             <Input
-              placeholder="A brief description of this collection"
+              placeholder="Add a description for this collection"
               value={newCollectionDescription}
               onChange={(e) => setNewCollectionDescription(e.target.value)}
-              className="focus:ring-blue-500 focus:border-blue-500"
+              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
             />
           </div>
           <div className="flex gap-3 pt-2">
@@ -400,14 +401,14 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                 setNewCollectionName("");
                 setNewCollectionDescription("");
               }}
-              className="flex-1 border-slate-200 hover:bg-slate-50"
+              className="flex-1 h-10 border-slate-300 dark:border-[#404040] hover:bg-slate-50 dark:hover:bg-[#2a2a2a] text-slate-700 dark:text-[#e8eaed]"
             >
               Cancel
             </Button>
             <Button
               onClick={handleCreateCollection}
               disabled={!newCollectionName.trim()}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+              className="flex-1 h-10 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 disabled:text-slate-500 text-white font-medium shadow-sm transition-all"
             >
               Create Collection
             </Button>
@@ -422,60 +423,64 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
           setNewRequestName("");
           setNewRequestUrl("");
         }}
-        title="Create Request"
+        title="Add Request"
+        size="medium"
       >
-        <form onSubmit={handleCreateRequest} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-[#9aa0a6] mb-2">
-              Request Name
+        <form onSubmit={handleCreateRequest} className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-[#e8eaed]">
+              Request name *
             </label>
             <Input
-              placeholder="Get Users"
+              placeholder="Enter request name"
               value={newRequestName}
               onChange={(e) => {
                 console.log("Name input changed:", e.target.value);
                 setNewRequestName(e.target.value);
               }}
               autoFocus
-              className="focus:ring-blue-500 focus:border-blue-500"
+              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-[#9aa0a6] mb-2">
-              Method
-            </label>
-            <select
-              className="w-full px-3 py-2 border border-slate-200 dark:border-[#404040] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#2d2d2d] dark:text-[#e8eaed] text-sm"
-              value={newRequestMethod}
-              onChange={(e) => {
-                console.log("Method changed:", e.target.value);
-                setNewRequestMethod(e.target.value);
-              }}
-            >
-              <option value="GET">GET</option>
-              <option value="POST">POST</option>
-              <option value="PUT">PUT</option>
-              <option value="DELETE">DELETE</option>
-              <option value="PATCH">PATCH</option>
-              <option value="HEAD">HEAD</option>
-              <option value="OPTIONS">OPTIONS</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-[#9aa0a6] mb-2">
-              URL
-            </label>
-            <Input
-              placeholder="https://api.example.com/users"
-              value={newRequestUrl}
-              onChange={(e) => {
-                console.log("URL input changed:", e.target.value);
-                setNewRequestUrl(e.target.value);
-              }}
-              className="focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-[#e8eaed]">
+                Method
+              </label>
+              <Select
+                value={newRequestMethod}
+                onValueChange={(value) => {
+                  console.log("Method changed:", value);
+                  setNewRequestMethod(value);
+                }}
+                options={[
+                  { value: "GET", label: "GET" },
+                  { value: "POST", label: "POST" },
+                  { value: "PUT", label: "PUT" },
+                  { value: "DELETE", label: "DELETE" },
+                  { value: "PATCH", label: "PATCH" },
+                  { value: "HEAD", label: "HEAD" },
+                  { value: "OPTIONS", label: "OPTIONS" }
+                ]}
+                variant="minimal"
+              />
+            </div>
+            <div className="col-span-2 space-y-2">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-[#e8eaed]">
+                Request URL *
+              </label>
+              <Input
+                placeholder="https://api.example.com/endpoint"
+                value={newRequestUrl}
+                onChange={(e) => {
+                  console.log("URL input changed:", e.target.value);
+                  setNewRequestUrl(e.target.value);
+                }}
+                className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
+                required
+              />
+            </div>
           </div>
           <div className="flex gap-3 pt-2">
             <Button
@@ -487,21 +492,21 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                 setNewRequestName("");
                 setNewRequestUrl("");
               }}
-              className="flex-1 border-slate-200 hover:bg-slate-50"
+              className="flex-1 h-10 border-slate-300 dark:border-[#404040] hover:bg-slate-50 dark:hover:bg-[#2a2a2a] text-slate-700 dark:text-[#e8eaed]"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!newRequestName.trim() || !newRequestUrl.trim()}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+              className="flex-1 h-10 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 disabled:text-slate-500 text-white font-medium shadow-sm transition-all"
               onClick={(e) => {
                 console.log("Create Request button clicked directly");
                 e.preventDefault();
                 handleCreateRequest(e);
               }}
             >
-              Create Request
+              Add Request
             </Button>
           </div>
         </form>
