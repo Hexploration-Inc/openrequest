@@ -1,6 +1,6 @@
 # OpenRequest 🚀
 
-> **The Most Efficient Open Source API Testing Tool**  
+> **The Most Efficient Open Source API Testing Tool**
 > A local-first, privacy-focused alternative to Postman and Insomnia built with Rust + React
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -42,26 +42,37 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 
 ---
 
+## ⚙️ Backend API Engine Capabilities
+
+Our backend, written in Rust, currently supports the following features for making HTTP requests:
+
+- **[✅] HTTP Methods**: Full support for GET, POST, PUT, DELETE, PATCH, HEAD, and OPTIONS.
+- **[✅] URL and Query Parameters**: Can target any URL and handles structured query parameters with automatic URL encoding.
+- **[✅] Request Headers**: Full support for custom request headers.
+- **[✅] Request Body**: Can send a request body as raw text.
+- **[✅] Response Handling**: Captures and returns the status code, response headers, and response body.
+
+### Future Backend Enhancements
+
+- **Structured Authentication**: Dedicated UI and logic for Basic Auth, Bearer Token, API Key, and OAuth 2.0.
+- **Advanced Request Body Types**: Support for `multipart/form-data` (file uploads) and `x-www-form-urlencoded`.
+- **Cookie Management**: Automatic cookie storage and sending.
+- **Advanced Connection Settings**: Connection timeouts, custom proxies, and redirect configuration.
+
+---
+
 ## 📋 Development Roadmap
 
 ### 🔥 Phase 1: Foundation (MVP) - 4-6 weeks
 
 **Goal**: Basic HTTP client with local storage
 
-#### 1.1 Project Setup & Architecture (Week 1)
+#### **Frontend**
 
-- [x] Initialize Tauri + React project
-- [x] Set up development environment
-- [ ] Design SQLite database schema
 - [ ] Create basic UI layout structure
 - [ ] Set up state management (Zustand/Redux)
-
-#### 1.2 Core HTTP Client (Week 2-3)
-
 - [ ] **Request Builder**
-  - [ ] HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
   - [ ] URL input with autocomplete
-  - [ ] Query parameters editor
   - [ ] Headers management
   - [ ] Request body editor (JSON, form-data, raw, binary)
 - [ ] **Response Viewer**
@@ -69,25 +80,27 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
   - [ ] Response headers display
   - [ ] Status codes and response time
   - [ ] Response size tracking
-
-#### 1.3 Local Storage System (Week 3-4)
-
-- [ ] **SQLite Integration**
-  - [ ] Database schema design
-  - [ ] CRUD operations for requests
-  - [ ] Data persistence layer
 - [ ] **Collections Management**
   - [ ] Create/edit/delete collections
   - [ ] Organize requests in folders
-  - [ ] Basic import/export (JSON)
+- [ ] **Authentication UI**
+  - [ ] UI for No Auth, Bearer Token, Basic Auth, API Key
 
-#### 1.4 Basic Authentication (Week 4)
+#### **Backend**
 
-- [ ] **Auth Types**
-  - [ ] No Auth
-  - [ ] Bearer Token
-  - [ ] Basic Auth
-  - [ ] API Key (header/query param)
+- [x] **Core HTTP Client**
+  - [x] HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
+  - [x] Query parameters editor
+- [x] **Local Storage System**
+  - [x] Database schema design
+  - [x] CRUD operations for requests
+  - [x] Data persistence layer
+  - [x] Basic import/export (JSON)
+- [x] **Authentication**
+  - [x] No Auth
+  - [x] Bearer Token
+  - [x] Basic Auth
+  - [x] API Key (header/query param)
 
 ---
 
@@ -95,38 +108,31 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 
 **Goal**: Environment management and advanced request capabilities
 
-#### 2.1 Environment & Variables System (Week 5-6)
+#### **Frontend**
 
-- [ ] **Environment Management**
+- [ ] **Environment Management UI**
   - [ ] Create/edit/delete environments
   - [ ] Environment switching UI
   - [ ] Variable interpolation (`{{variable}}` syntax)
-  - [ ] Global vs environment variables
-- [ ] **Variable Types**
-  - [ ] String variables
-  - [ ] Secret variables (masked input)
-  - [ ] Dynamic variables (timestamps, UUIDs)
-
-#### 2.2 Advanced Authentication (Week 6-7)
-
-- [ ] **OAuth 2.0 Flow**
-  - [ ] Authorization Code flow
-  - [ ] Client Credentials flow
-  - [ ] Token refresh handling
-- [ ] **Other Auth Methods**
-  - [ ] OAuth 1.0
-  - [ ] Digest Authentication
-  - [ ] AWS Signature
-  - [ ] Custom headers auth
-
-#### 2.3 Enhanced Response Processing (Week 7-8)
-
-- [ ] **Response Features**
+- [ ] **Advanced Authentication UI**
+  - [ ] UI for OAuth 2.0, OAuth 1.0, Digest Auth, AWS Signature
+- [ ] **Enhanced Response Processing UI**
   - [ ] JSON/XML pretty printing
   - [ ] Response search and filtering
-  - [ ] Cookie management
-  - [ ] Response caching
+  - [ ] Cookie management UI
   - [ ] Response comparison tool
+
+#### **Backend**
+
+- [ ] **Environment & Variables System**
+  - [ ] Global vs environment variables
+  - [ ] Secret variables (masked input)
+  - [ ] Dynamic variables (timestamps, UUIDs)
+- [ ] **Advanced Authentication**
+  - [ ] OAuth 2.0 Flow (Authorization Code, Client Credentials)
+  - [ ] Token refresh handling
+  - [ ] OAuth 1.0, Digest Authentication, AWS Signature
+- [ ] **Response Caching**
 
 ---
 
@@ -134,51 +140,33 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 
 **Goal**: Scripting, testing, and collection runner
 
-#### 3.1 JavaScript Scripting Environment (Week 9-10)
+#### **Frontend**
 
-- [ ] **V8 Engine Integration**
-  - [ ] JavaScript runtime setup
-  - [ ] Pre-request scripts
-  - [ ] Post-response scripts
-  - [ ] Built-in libraries (crypto, moment, lodash)
-- [ ] **Script APIs**
-  - [ ] Environment variable access
-  - [ ] Global variable management
-  - [ ] Request/response object manipulation
-
-#### 3.2 Testing Framework (Week 10-11)
-
-- [ ] **Test Assertions**
-  - [ ] Status code validation
-  - [ ] Response body assertions
-  - [ ] Header validation
-  - [ ] JSON schema validation
-  - [ ] Custom test functions
-- [ ] **Test Results**
+- [ ] **Scripting UI**
+  - [ ] Pre-request and post-response script editors
+- [ ] **Testing UI**
   - [ ] Test runner UI
   - [ ] Pass/fail reporting
   - [ ] Test history tracking
+- [ ] **Collection Runner UI**
+- [ ] **Mock Server UI**
+  - [ ] Route definition UI
 
-#### 3.3 Collection Runner (Week 11-12)
+#### **Backend**
 
-- [ ] **Automation Engine**
+- [ ] **JavaScript Scripting Environment (V8)**
+  - [ ] Pre-request and post-response scripts
+  - [ ] Built-in libraries (crypto, moment, lodash)
+  - [ ] Environment and global variable access
+- [ ] **Testing Framework**
+  - [ ] Test assertions (status code, response body, headers)
+  - [ ] JSON schema validation
+- [ ] **Collection Runner**
   - [ ] Sequential request execution
   - [ ] Data-driven testing (CSV/JSON)
-  - [ ] Conditional logic
-  - [ ] Iteration control
-- [ ] **Reporting System**
-  - [ ] Console output
-  - [ ] HTML reports
-  - [ ] JSON/XML export
-  - [ ] JUnit XML for CI/CD
-
-#### 3.4 Mock Server (Week 12-13)
-
-- [ ] **Local Mock Server**
-  - [ ] Route definition UI
+- [ ] **Mock Server**
   - [ ] Dynamic response generation
   - [ ] Request matching logic
-  - [ ] Response delay simulation
 
 ---
 
@@ -186,48 +174,27 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 
 **Goal**: Support for GraphQL, WebSocket, and other protocols
 
-#### 4.1 GraphQL Integration (Week 14-15)
+#### **Frontend**
 
-- [ ] **GraphQL Client**
-  - [ ] Schema introspection
+- [ ] **GraphQL UI**
   - [ ] Query builder UI
   - [ ] Variables management
   - [ ] Subscription support
-- [ ] **GraphQL Features**
-  - [ ] Query validation
-  - [ ] Schema documentation
-  - [ ] Query history
-
-#### 4.2 WebSocket Support (Week 15-16)
-
-- [ ] **WebSocket Client**
+- [ ] **WebSocket UI**
   - [ ] Connection management
   - [ ] Message sending/receiving
-  - [ ] Connection state tracking
-  - [ ] Message history
-- [ ] **Real-time Features**
-  - [ ] Auto-reconnection
-  - [ ] Ping/pong handling
-  - [ ] Socket.IO protocol support
+- [ ] **gRPC UI**
+- [ ] **Server-Sent Events (SSE) UI**
+- [ ] **MQTT UI**
 
-#### 4.3 gRPC Support (Week 16-18)
+#### **Backend**
 
-- [ ] **gRPC Client**
-  - [ ] Protocol Buffer support
-  - [ ] Service reflection
-  - [ ] Streaming support (client, server, bidirectional)
-  - [ ] Metadata handling
-
-#### 4.4 Additional Protocols (Week 18-19)
-
+- [ ] **GraphQL Integration**
+  - [ ] Schema introspection
+- [ ] **WebSocket Support**
+- [ ] **gRPC Support**
 - [ ] **Server-Sent Events (SSE)**
-  - [ ] Event stream handling
-  - [ ] Event filtering
-  - [ ] Connection management
 - [ ] **MQTT Protocol**
-  - [ ] Pub/Sub messaging
-  - [ ] Topic management
-  - [ ] QoS levels
 
 ---
 
@@ -235,54 +202,19 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 
 **Goal**: Code generation, documentation, and developer experience
 
-#### 5.1 Code Generation Engine (Week 20-21)
+#### **Frontend**
 
-- [ ] **Multi-Language Support**
-  - [ ] JavaScript/TypeScript (fetch, axios)
-  - [ ] Python (requests, httpx)
-  - [ ] Rust (reqwest, ureq)
-  - [ ] Go (net/http, resty)
-  - [ ] Java (OkHttp, HttpClient)
-  - [ ] C# (HttpClient)
-  - [ ] PHP (cURL, Guzzle)
-  - [ ] Swift (URLSession)
+- [ ] **Code Generation UI**
+- [ ] **Import/Export UI**
+- [ ] **Documentation Generator UI**
+- [ ] **Global Search UI**
+- [ ] **Customizable Keyboard Shortcuts**
 
-#### 5.2 Import/Export System (Week 21-22)
+#### **Backend**
 
-- [ ] **Import Formats**
-  - [ ] Postman Collections v2.1
-  - [ ] Insomnia workspace files
-  - [ ] OpenAPI/Swagger specs
-  - [ ] cURL commands
-  - [ ] HAR (HTTP Archive) files
-- [ ] **Export Formats**
-  - [ ] OpenRequest native format
-  - [ ] Postman Collection format
-  - [ ] OpenAPI specification
-  - [ ] Documentation formats
-
-#### 5.3 Documentation Generator (Week 22-23)
-
-- [ ] **Auto-Documentation**
-  - [ ] Generate docs from collections
-  - [ ] Markdown output
-  - [ ] HTML documentation
-  - [ ] Interactive documentation
-- [ ] **Custom Templates**
-  - [ ] Template system
-  - [ ] Custom styling
-  - [ ] Brand customization
-
-#### 5.4 Search & Navigation (Week 23-24)
-
-- [ ] **Global Search**
-  - [ ] Fuzzy search across collections
-  - [ ] Request/response content search
-  - [ ] Tag-based filtering
-- [ ] **Keyboard Shortcuts**
-  - [ ] Quick actions
-  - [ ] Navigation shortcuts
-  - [ ] Customizable hotkeys
+- [ ] **Code Generation Engine**
+- [ ] **Import/Export System (Postman, Insomnia, OpenAPI)**
+- [ ] **Documentation Generator**
 
 ---
 
@@ -290,40 +222,17 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 
 **Goal**: Team features and data synchronization
 
-#### 6.1 Git Integration (Week 25-27)
+#### **Frontend**
 
-- [ ] **Version Control**
-  - [ ] Git repository integration
-  - [ ] Automatic commits
-  - [ ] Branch management
-  - [ ] Conflict resolution UI
-- [ ] **Sync Features**
-  - [ ] Pull/push collections
-  - [ ] Merge conflict handling
-  - [ ] Change history tracking
+- [ ] **Git Integration UI**
+- [ ] **File-Based Collaboration UI**
+- [ ] **Security & Secrets Management UI**
 
-#### 6.2 File-Based Collaboration (Week 27-28)
+#### **Backend**
 
+- [ ] **Git Integration**
 - [ ] **File System Sync**
-  - [ ] Watch for file changes
-  - [ ] Auto-reload collections
-  - [ ] File format optimization
-- [ ] **Team Workflow**
-  - [ ] Shared collection format
-  - [ ] Review process integration
-  - [ ] Change notifications
-
-#### 6.3 Security & Secrets Management (Week 28-30)
-
-- [ ] **Secret Storage**
-  - [ ] System keychain integration
-  - [ ] Encrypted local storage
-  - [ ] Secret sharing protocols
-- [ ] **Vault Integrations**
-  - [ ] HashiCorp Vault
-  - [ ] AWS Secrets Manager
-  - [ ] Azure Key Vault
-  - [ ] 1Password integration
+- [ ] **Secrets Management (System Keychain, Vaults)**
 
 ---
 
@@ -331,40 +240,17 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 
 **Goal**: Load testing and API monitoring
 
-#### 7.1 Performance Testing (Week 31-32)
+#### **Frontend**
 
-- [ ] **Load Testing Engine**
-  - [ ] Virtual user simulation
-  - [ ] Concurrent request handling
-  - [ ] Ramp-up/ramp-down patterns
-  - [ ] Response time metrics
-- [ ] **Performance Metrics**
-  - [ ] Requests per second
-  - [ ] Response time percentiles
-  - [ ] Error rate tracking
-  - [ ] Throughput analysis
+- [ ] **Performance Testing UI**
+- [ ] **API Monitoring UI**
+- [ ] **Analytics & Reporting UI**
 
-#### 7.2 API Monitoring (Week 32-33)
+#### **Backend**
 
-- [ ] **Uptime Monitoring**
-  - [ ] Scheduled health checks
-  - [ ] Availability tracking
-  - [ ] Alert system
-- [ ] **Performance Monitoring**
-  - [ ] Response time trends
-  - [ ] Error rate monitoring
-  - [ ] SLA tracking
-
-#### 7.3 Analytics & Reporting (Week 33-34)
-
-- [ ] **Usage Analytics**
-  - [ ] Request frequency analysis
-  - [ ] Performance trends
-  - [ ] Error pattern detection
-- [ ] **Custom Dashboards**
-  - [ ] Metrics visualization
-  - [ ] Custom charts
-  - [ ] Export capabilities
+- [ ] **Performance Testing Engine**
+- [ ] **API Monitoring Engine**
+- [ ] **Analytics & Reporting Engine**
 
 ---
 
@@ -372,44 +258,16 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 
 **Goal**: AI-powered features and extensibility
 
-#### 8.1 AI Integration (Week 35-37)
+#### **Frontend**
 
-- [ ] **Smart Test Generation**
-  - [ ] Auto-generate tests from responses
-  - [ ] Edge case detection
-  - [ ] Schema-based validation
-- [ ] **Documentation AI**
-  - [ ] Auto-generate API documentation
-  - [ ] Description suggestions
-  - [ ] Example generation
-- [ ] **Anomaly Detection**
-  - [ ] Response pattern analysis
-  - [ ] Performance anomaly detection
-  - [ ] Security issue identification
+- [ ] **AI Integration UI**
+- [ ] **Plugin System UI**
+- [ ] **Advanced UI Features (Themes, Multi-tab)**
 
-#### 8.2 Plugin System (Week 37-38)
+#### **Backend**
 
+- [ ] **AI Integration**
 - [ ] **Plugin Architecture**
-  - [ ] Plugin API design
-  - [ ] Plugin registry
-  - [ ] Sandboxed execution
-- [ ] **Core Plugins**
-  - [ ] Custom protocol support
-  - [ ] Additional auth methods
-  - [ ] Report formatters
-  - [ ] Third-party integrations
-
-#### 8.3 Advanced UI Features (Week 38-39)
-
-- [ ] **Customization**
-  - [ ] Theme system
-  - [ ] Layout customization
-  - [ ] Workspace preferences
-- [ ] **Productivity Features**
-  - [ ] Multi-tab interface
-  - [ ] Split-screen views
-  - [ ] Request comparison
-  - [ ] Bulk operations
 
 ---
 
@@ -418,35 +276,14 @@ OpenRequest aims to be the **most efficient open source alternative** to Postman
 ### Cloud Features (Premium)
 
 - [ ] **Team Collaboration**
-  - [ ] Real-time collaboration
-  - [ ] Team workspaces
-  - [ ] Permission management
-  - [ ] Activity feeds
 - [ ] **Cloud Sync**
-  - [ ] Cross-device synchronization
-  - [ ] Backup and restore
-  - [ ] Version history
 - [ ] **Enterprise Features**
-  - [ ] SSO integration
-  - [ ] Audit logging
-  - [ ] Compliance reporting
-  - [ ] API governance
 
 ### Advanced Integrations
 
 - [ ] **CI/CD Platforms**
-  - [ ] GitHub Actions
-  - [ ] GitLab CI/CD
-  - [ ] Jenkins
-  - [ ] Azure DevOps
 - [ ] **Monitoring Tools**
-  - [ ] Datadog integration
-  - [ ] New Relic integration
-  - [ ] Grafana dashboards
 - [ ] **Documentation Platforms**
-  - [ ] GitBook integration
-  - [ ] Confluence integration
-  - [ ] Notion integration
 
 ---
 

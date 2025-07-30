@@ -1,7 +1,149 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #3b82f6;
-  --color-accent: #10b981;
+  /* Brand Colors */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+
+  /* Accent Colors */
+  --color-accent-50: #ecfdf5;
+  --color-accent-100: #d1fae5;
+  --color-accent-200: #a7f3d0;
+  --color-accent-300: #6ee7b7;
+  --color-accent-400: #34d399;
+  --color-accent-500: #10b981;
+  --color-accent-600: #059669;
+  --color-accent-700: #047857;
+  --color-accent-800: #065f46;
+  --color-accent-900: #064e3b;
+
+  /* HTTP Method Colors */
+  --color-method-get: #22c55e;
+  --color-method-get-bg: #dcfce7;
+  --color-method-post: #3b82f6;
+  --color-method-post-bg: #dbeafe;
+  --color-method-put: #f59e0b;
+  --color-method-put-bg: #fef3c7;
+  --color-method-delete: #ef4444;
+  --color-method-delete-bg: #fee2e2;
+  --color-method-patch: #8b5cf6;
+  --color-method-patch-bg: #ede9fe;
+
+  /* Status Colors */
+  --color-status-success: #22c55e;
+  --color-status-success-bg: #dcfce7;
+  --color-status-warning: #f59e0b;
+  --color-status-warning-bg: #fef3c7;
+  --color-status-error: #ef4444;
+  --color-status-error-bg: #fee2e2;
+  --color-status-info: #3b82f6;
+  --color-status-info-bg: #dbeafe;
+
+  /* Semantic Grays - Postman-inspired matte black/grey palette */
+  --color-gray-50: #f8f9fa;
+  --color-gray-100: #f1f3f4;
+  --color-gray-200: #e3e5e8;
+  --color-gray-300: #c1c7cd;
+  --color-gray-400: #9aa0a6;
+  --color-gray-500: #5f6368;
+  --color-gray-600: #3c4043;
+  --color-gray-700: #2d2d2d;
+  --color-gray-800: #1f1f1f;
+  --color-gray-900: #121212;
+
+  /* Typography */
+  --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
   --font-family-display: "Inter", system-ui, sans-serif;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Spacing Scale */
+  --spacing-px: 1px;
+  --spacing-0: 0rem;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-default: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Z-Index Scale */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+
+  /* Layout */
+  --sidebar-width-collapsed: 64px;
+  --sidebar-width-expanded: 320px;
+  --header-height: 64px;
+  --tab-height: 48px;
+
+  /* Dark Theme Specific Colors */
+  --color-dark-bg-primary: #121212;
+  --color-dark-bg-secondary: #1f1f1f;
+  --color-dark-bg-tertiary: #2d2d2d;
+  --color-dark-surface: #383838;
+  --color-dark-border: #404040;
+  --color-dark-text-primary: #e8eaed;
+  --color-dark-text-secondary: #9aa0a6;
+  --color-dark-text-muted: #5f6368;
 }
