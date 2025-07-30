@@ -120,8 +120,8 @@ export function ResponseViewer() {
       {/* Response Content Tabs */}
       <div className="flex-1 flex flex-col border-0">
         <Tabs defaultValue="body" className="h-full flex flex-col gap-0 border-0">
-          <div>
-            <TabsList className="h-12 bg-white dark:bg-[#1f1f1f] p-0 space-x-0 rounded-none w-full justify-start border-0">
+          <div className="bg-white dark:bg-[#1f1f1f]">
+            <TabsList className="h-12 bg-transparent p-0 space-x-0 rounded-none justify-start border-0">
               <TabsTrigger 
                 value="body"
                 className="rounded-none border-0 border-b-2 border-b-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-6 py-3 font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"

@@ -308,7 +308,7 @@ export function RequestBuilder() {
           className="h-full flex flex-col"
         >
           <div className="bg-white dark:bg-[#1f1f1f]">
-            <TabsList className="h-10 bg-transparent p-0 space-x-0 rounded-none w-full justify-start border-b border-gray-200 dark:border-[#404040]">
+            <TabsList className="h-10 bg-transparent p-0 space-x-0 rounded-none justify-start">
               <TabsTrigger 
                 value="params" 
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
