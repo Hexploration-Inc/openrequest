@@ -246,17 +246,23 @@ impl Database {
     // It takes the `id` of the collection to be deleted as input.
     // It also deletes all the requests associated with this collection.
     pub async fn delete_collection(&self, id: &str) -> Result<()> {
+        println!("🗑️ DB: delete_collection called with id: {}", id);
+        
         // First, delete all requests in the collection
-        sqlx::query("DELETE FROM requests WHERE collection_id = ?")
+        println!("🔄 DB: Deleting requests for collection...");
+        let requests_result = sqlx::query("DELETE FROM requests WHERE collection_id = ?")
             .bind(id)
             .execute(&self.pool)
             .await?;
+        println!("✅ DB: Deleted {} requests", requests_result.rows_affected());
 
         // Then, delete the collection itself
-        sqlx::query("DELETE FROM collections WHERE id = ?")
+        println!("🔄 DB: Deleting collection...");
+        let collection_result = sqlx::query("DELETE FROM collections WHERE id = ?")
             .bind(id)
             .execute(&self.pool)
             .await?;
+        println!("✅ DB: Deleted {} collection(s)", collection_result.rows_affected());
 
         Ok(())
     }
@@ -403,10 +409,14 @@ impl Database {
     // 🎓 TEACHING: This function deletes a request from the database.
     // It takes the `id` of the request to be deleted as input.
     pub async fn delete_request(&self, id: &str) -> Result<()> {
-        sqlx::query("DELETE FROM requests WHERE id = ?")
+        println!("🗑️ DB: delete_request called with id: {}", id);
+        
+        println!("🔄 DB: Deleting request...");
+        let result = sqlx::query("DELETE FROM requests WHERE id = ?")
             .bind(id)
             .execute(&self.pool)
             .await?;
+        println!("✅ DB: Deleted {} request(s)", result.rows_affected());
 
         Ok(())
     }

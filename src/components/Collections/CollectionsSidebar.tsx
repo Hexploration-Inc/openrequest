@@ -7,7 +7,7 @@ import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { Modal } from "../ui/modal";
 import { Select } from "../ui/select";
-import { Plus, Folder, FileText, ChevronRight, ChevronDown } from "lucide-react";
+import { Plus, Folder, FileText, ChevronRight, ChevronDown, Edit, Trash2, X, Check } from "lucide-react";
 
 interface CollectionsSidebarProps {
   collapsed?: boolean;
@@ -16,11 +16,15 @@ interface CollectionsSidebarProps {
 export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProps) {
   const {
     collections,
-    requests,
     selectedCollectionId,
     createCollection,
     selectCollection,
     createRequest,
+    updateCollection,
+    deleteCollection,
+    updateRequest,
+    deleteRequest,
+    getRequestsForCollection,
   } = useCollectionsStore();
 
   const { openRequestInTab } = useTabsStore();
@@ -34,6 +38,16 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
   const [newRequestName, setNewRequestName] = useState("");
   const [newRequestMethod, setNewRequestMethod] = useState("GET");
   const [newRequestUrl, setNewRequestUrl] = useState("");
+  
+  // Inline editing states
+  const [editingCollectionId, setEditingCollectionId] = useState<string | null>(null);
+  const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  
+  // Confirmation dialog states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{type: 'collection' | 'request', id: string, name: string} | null>(null);
 
   const toggleCollectionExpanded = (collectionId: string) => {
     setExpandedCollections(prev => {
@@ -123,6 +137,96 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
       console.error("Error details:", JSON.stringify(err, null, 2));
       error("Failed to create request", err instanceof Error ? err.message : "Unknown error occurred");
     }
+  };
+
+  // Inline editing handlers
+  const handleStartEditCollection = (id: string, name: string, description: string) => {
+    setEditingCollectionId(id);
+    setEditName(name);
+    setEditDescription(description);
+  };
+
+  const handleStartEditRequest = (id: string, name: string) => {
+    setEditingRequestId(id);
+    setEditName(name);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCollectionId(null);
+    setEditingRequestId(null);
+    setEditName("");
+    setEditDescription("");
+  };
+
+  const handleSaveCollectionEdit = async (id: string) => {
+    if (!editName.trim()) return;
+    
+    try {
+      await updateCollection(id, editName.trim(), editDescription.trim() || undefined);
+      handleCancelEdit();
+      success("Collection updated", `"${editName}" has been updated successfully`);
+    } catch (err) {
+      console.error("Failed to update collection:", err);
+      error("Failed to update collection", err instanceof Error ? err.message : "Unknown error occurred");
+    }
+  };
+
+  const handleSaveRequestEdit = async (id: string) => {
+    if (!editName.trim()) return;
+    
+    try {
+      await updateRequest(id, editName.trim());
+      handleCancelEdit();
+      success("Request updated", `"${editName}" has been updated successfully`);
+    } catch (err) {
+      console.error("Failed to update request:", err);
+      error("Failed to update request", err instanceof Error ? err.message : "Unknown error occurred");
+    }
+  };
+
+  const handleDeleteCollection = (id: string, name: string) => {
+    console.log("🗑️ UI: handleDeleteCollection called with:", { id, name });
+    setDeleteTarget({ type: 'collection', id, name });
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteRequest = (id: string, name: string) => {
+    console.log("🗑️ UI: handleDeleteRequest called with:", { id, name });
+    setDeleteTarget({ type: 'request', id, name });
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    
+    const { type, id, name } = deleteTarget;
+    console.log(`✅ UI: User confirmed ${type} deletion, proceeding...`);
+    
+    try {
+      if (type === 'collection') {
+        console.log("🔄 UI: Calling deleteCollection from store...");
+        await deleteCollection(id);
+        console.log("✅ UI: deleteCollection completed successfully");
+        success("Collection deleted", `"${name}" has been deleted successfully`);
+      } else {
+        console.log("🔄 UI: Calling deleteRequest from store...");
+        await deleteRequest(id);
+        console.log("✅ UI: deleteRequest completed successfully");
+        success("Request deleted", `"${name}" has been deleted successfully`);
+      }
+    } catch (err) {
+      console.error(`❌ UI: Failed to delete ${type}:`, err);
+      error(`Failed to delete ${type}`, err instanceof Error ? err.message : "Unknown error occurred");
+    } finally {
+      setShowDeleteConfirm(false);
+      setDeleteTarget(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    console.log("🚫 UI: User cancelled deletion");
+    setShowDeleteConfirm(false);
+    setDeleteTarget(null);
   };
 
   if (collapsed) {
@@ -278,29 +382,97 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                 </button>
                 <Folder className={`h-4 w-4 ${selectedCollectionId === collection.id ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-[#5f6368]'}`} />
               </div>
-              <button
-                onClick={() => selectCollection(collection.id)}
-                className="flex-1 min-w-0 text-left"
-              >
-                <div className={`font-medium text-sm truncate ${
-                  selectedCollectionId === collection.id ? 'text-blue-900 dark:text-blue-100' : 'text-slate-900 dark:text-[#e8eaed]'
-                }`}>
-                  {collection.name}
+              {editingCollectionId === collection.id ? (
+                <div className="flex-1 space-y-2">
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="h-7 text-sm text-slate-900 dark:text-[#e8eaed] bg-white dark:bg-[#2a2a2a] border-slate-300 dark:border-[#404040]"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSaveCollectionEdit(collection.id);
+                      } else if (e.key === 'Escape') {
+                        handleCancelEdit();
+                      }
+                    }}
+                  />
+                  <Input
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    className="h-7 text-xs text-slate-900 dark:text-[#e8eaed] bg-white dark:bg-[#2a2a2a] border-slate-300 dark:border-[#404040]"
+                    placeholder="Description (optional)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSaveCollectionEdit(collection.id);
+                      } else if (e.key === 'Escape') {
+                        handleCancelEdit();
+                      }
+                    }}
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleSaveCollectionEdit(collection.id)}
+                      className="p-1 text-green-600 hover:bg-green-50 rounded"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="p-1 text-slate-400 hover:bg-slate-50 rounded"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
-                {collection.description && (
-                  <div className="text-xs text-slate-500 dark:text-[#9aa0a6] truncate mt-0.5">{collection.description}</div>
-                )}
-              </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => selectCollection(collection.id)}
+                    className="flex-1 min-w-0 text-left"
+                  >
+                    <div className={`font-medium text-sm truncate ${
+                      selectedCollectionId === collection.id ? 'text-blue-900 dark:text-blue-100' : 'text-slate-900 dark:text-[#e8eaed]'
+                    }`}>
+                      {collection.name}
+                    </div>
+                    {collection.description && (
+                      <div className="text-xs text-slate-500 dark:text-[#9aa0a6] truncate mt-0.5">{collection.description}</div>
+                    )}
+                  </button>
+                  <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStartEditCollection(collection.id, collection.name, collection.description || "");
+                      }}
+                      className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded"
+                      title="Rename collection"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCollection(collection.id, collection.name);
+                      }}
+                      className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
+                      title="Delete collection"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Requests List */}
             {isCollectionExpanded(collection.id) && (
               <div className="ml-6 space-y-1">
-                {requests.map((request) => (
+                {getRequestsForCollection(collection.id).map((request) => (
                   <div
                     key={request.id}
-                    className="group flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-[#383838] transition-all"
-                    onClick={() => openRequestInTab(request)}
+                    className="group flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg hover:bg-slate-50 dark:hover:bg-[#383838] transition-all"
                   >
                     <FileText className="h-3.5 w-3.5 text-slate-400 dark:text-[#5f6368] flex-shrink-0" />
                     <span className={`px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-[#404040] bg-slate-50 dark:bg-[#2a2a2a] ${
@@ -314,9 +486,67 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                     >
                       {request.method}
                     </span>
-                    <span className="text-sm text-slate-700 dark:text-[#9aa0a6] truncate flex-1 font-medium">
-                      {request.name}
-                    </span>
+                    
+                    {editingRequestId === request.id ? (
+                      <div className="flex-1 flex items-center gap-2">
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="h-7 text-sm text-slate-900 dark:text-[#e8eaed] bg-white dark:bg-[#2a2a2a] border-slate-300 dark:border-[#404040]"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleSaveRequestEdit(request.id);
+                            } else if (e.key === 'Escape') {
+                              handleCancelEdit();
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={() => handleSaveRequestEdit(request.id)}
+                          className="p-1 text-green-600 hover:bg-green-50 rounded"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="p-1 text-slate-400 hover:bg-slate-50 rounded"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span 
+                          className="text-sm text-slate-700 dark:text-[#9aa0a6] truncate flex-1 font-medium cursor-pointer"
+                          onClick={() => openRequestInTab(request)}
+                        >
+                          {request.name}
+                        </span>
+                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartEditRequest(request.id, request.name);
+                            }}
+                            className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded"
+                            title="Rename request"
+                          >
+                            <Edit className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteRequest(request.id, request.name);
+                            }}
+                            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
+                            title="Delete request"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
                 
@@ -379,7 +609,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
               value={newCollectionName}
               onChange={(e) => setNewCollectionName(e.target.value)}
               autoFocus
-              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
+              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all text-slate-900 dark:text-[#e8eaed] bg-white dark:bg-[#2a2a2a]"
             />
           </div>
           <div className="space-y-2">
@@ -390,7 +620,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
               placeholder="Add a description for this collection"
               value={newCollectionDescription}
               onChange={(e) => setNewCollectionDescription(e.target.value)}
-              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
+              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all text-slate-900 dark:text-[#e8eaed] bg-white dark:bg-[#2a2a2a]"
             />
           </div>
           <div className="flex gap-3 pt-2">
@@ -439,7 +669,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                 setNewRequestName(e.target.value);
               }}
               autoFocus
-              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
+              className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all text-slate-900 dark:text-[#e8eaed] bg-white dark:bg-[#2a2a2a]"
               required
             />
           </div>
@@ -477,7 +707,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                   console.log("URL input changed:", e.target.value);
                   setNewRequestUrl(e.target.value);
                 }}
-                className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all"
+                className="w-full h-10 px-3 border-slate-300 dark:border-[#404040] rounded-lg focus:border-orange-500 focus:ring-orange-500/20 focus:ring-2 transition-all text-slate-900 dark:text-[#e8eaed] bg-white dark:bg-[#2a2a2a]"
                 required
               />
             </div>
@@ -510,6 +740,49 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteConfirm}
+        onClose={handleCancelDelete}
+        title="Confirm Deletion"
+        size="small"
+      >
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-50 dark:bg-red-900 rounded-full flex items-center justify-center">
+              <Trash2 className="h-5 w-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-[#e8eaed]">
+                Delete {deleteTarget?.type === 'collection' ? 'Collection' : 'Request'}
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-[#9aa0a6] mt-1">
+                {deleteTarget?.type === 'collection' 
+                  ? `Are you sure you want to delete the collection "${deleteTarget.name}"? This will also delete all requests in this collection.`
+                  : `Are you sure you want to delete the request "${deleteTarget?.name}"?`
+                }
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="outline"
+              onClick={handleCancelDelete}
+              className="flex-1 h-10 border-slate-300 dark:border-[#404040] hover:bg-slate-50 dark:hover:bg-[#2a2a2a] text-slate-700 dark:text-[#e8eaed]"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmDelete}
+              className="flex-1 h-10 bg-red-600 hover:bg-red-700 text-white font-medium shadow-sm transition-all"
+            >
+              Delete {deleteTarget?.type === 'collection' ? 'Collection' : 'Request'}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

@@ -197,12 +197,24 @@ async fn update_collection(
 
 #[tauri::command]
 async fn delete_collection(id: String, db_state: State<'_, DatabaseState>) -> Result<(), String> {
+    println!("🗑️ Rust: delete_collection called with id: {}", id);
+    
     let db = {
         let db_guard = db_state.lock().unwrap();
         db_guard.as_ref().ok_or("Database not initialized")?.clone()
     };
 
-    db.delete_collection(&id).await.map_err(|e| e.to_string())
+    println!("🔄 Rust: Calling database delete_collection...");
+    let result = db.delete_collection(&id).await.map_err(|e| {
+        println!("❌ Rust: Database delete_collection failed: {}", e);
+        e.to_string()
+    });
+    
+    if result.is_ok() {
+        println!("✅ Rust: delete_collection completed successfully");
+    }
+    
+    result
 }
 
 #[tauri::command]
@@ -268,12 +280,24 @@ async fn update_request(
 
 #[tauri::command]
 async fn delete_request(id: String, db_state: State<'_, DatabaseState>) -> Result<(), String> {
+    println!("🗑️ Rust: delete_request called with id: {}", id);
+    
     let db = {
         let db_guard = db_state.lock().unwrap();
         db_guard.as_ref().ok_or("Database not initialized")?.clone()
     };
 
-    db.delete_request(&id).await.map_err(|e| e.to_string())
+    println!("🔄 Rust: Calling database delete_request...");
+    let result = db.delete_request(&id).await.map_err(|e| {
+        println!("❌ Rust: Database delete_request failed: {}", e);
+        e.to_string()
+    });
+    
+    if result.is_ok() {
+        println!("✅ Rust: delete_request completed successfully");
+    }
+    
+    result
 }
 
 #[tauri::command]
