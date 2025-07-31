@@ -32,6 +32,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
 
   const [showCreateCollection, setShowCreateCollection] = useState(false);
   const [showCreateRequest, setShowCreateRequest] = useState(false);
+  const [targetCollectionId, setTargetCollectionId] = useState<string | null>(null);
   const [expandedCollections, setExpandedCollections] = useState<Set<string>>(new Set());
   const [newCollectionName, setNewCollectionName] = useState("");
   const [newCollectionDescription, setNewCollectionDescription] = useState("");
@@ -83,12 +84,17 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
   const handleCreateRequest = async (e?: React.FormEvent) => {
     e?.preventDefault();
     
+    // Use targetCollectionId (from Add Request button) or fall back to selectedCollectionId
+    const collectionId = targetCollectionId || selectedCollectionId;
+    
     console.log("🚀 Create request button clicked!");
     console.log("Form state:", {
       name: newRequestName,
       method: newRequestMethod,
       url: newRequestUrl,
-      collectionId: selectedCollectionId,
+      targetCollectionId,
+      selectedCollectionId,
+      collectionId,
       nameLength: newRequestName.length,
       urlLength: newRequestUrl.length
     });
@@ -106,7 +112,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
       return;
     }
     
-    if (!selectedCollectionId) {
+    if (!collectionId) {
       console.error("❌ No collection selected. Available collections:", collections);
       error("Validation Error", "No collection selected");
       return;
@@ -116,19 +122,20 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
     
     try {
       console.log("📞 Calling createRequest with params:", {
-        collectionId: selectedCollectionId,
+        collectionId,
         name: newRequestName.trim(),
         method: newRequestMethod,
         url: newRequestUrl.trim()
       });
       
-      await createRequest(selectedCollectionId, newRequestName.trim(), newRequestMethod, newRequestUrl.trim());
+      await createRequest(collectionId, newRequestName.trim(), newRequestMethod, newRequestUrl.trim());
       
       console.log("✅ Request created successfully, clearing form...");
       setNewRequestName("");
       setNewRequestUrl("");
       setNewRequestMethod("GET");
       setShowCreateRequest(false);
+      setTargetCollectionId(null); // Clear the target collection ID
       success("Request created", `"${newRequestName}" has been created successfully`);
       
       console.log("✅ Form cleared and modal closed");
@@ -557,7 +564,10 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                     size="sm"
                     variant="ghost"
                     className="w-full justify-start text-xs h-6 text-slate-500 dark:text-[#9aa0a6] hover:text-slate-700 dark:hover:text-[#e8eaed] hover:bg-slate-50 dark:hover:bg-[#383838] transition-colors rounded"
-                    onClick={() => setShowCreateRequest(true)}
+                    onClick={() => {
+                      setTargetCollectionId(collection.id);
+                      setShowCreateRequest(true);
+                    }}
                   >
                     <Plus className="h-3 w-3 mr-1.5" />
                     Add Request
@@ -653,11 +663,24 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
           setShowCreateRequest(false);
           setNewRequestName("");
           setNewRequestUrl("");
+          setTargetCollectionId(null);
         }}
         title="Add Request"
         size="medium"
       >
         <form onSubmit={handleCreateRequest} className="space-y-6">
+          {/* Collection indicator */}
+          {(targetCollectionId || selectedCollectionId) && (
+            <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <Folder className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  Adding to: {collections.find(c => c.id === (targetCollectionId || selectedCollectionId))?.name}
+                </span>
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-slate-700 dark:text-[#e8eaed]">
               Request name *
@@ -722,6 +745,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                 setShowCreateRequest(false);
                 setNewRequestName("");
                 setNewRequestUrl("");
+                setTargetCollectionId(null);
               }}
               className="flex-1 h-10 border-slate-300 dark:border-[#404040] hover:bg-slate-50 dark:hover:bg-[#2a2a2a] text-slate-700 dark:text-[#e8eaed]"
             >
@@ -729,7 +753,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
             </Button>
             <Button
               type="submit"
-              disabled={!newRequestName.trim() || !newRequestUrl.trim()}
+              disabled={!newRequestName.trim() || !newRequestUrl.trim() || !(targetCollectionId || selectedCollectionId)}
               className="flex-1 h-10 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 disabled:text-slate-500 text-white font-medium shadow-sm transition-all"
               onClick={(e) => {
                 console.log("Create Request button clicked directly");
