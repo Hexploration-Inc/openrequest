@@ -124,15 +124,20 @@ Our backend, written in Rust, currently supports the following features for maki
 
 #### **Backend**
 
-- [ ] **Environment & Variables System**
-  - [ ] Global vs environment variables
-  - [ ] Secret variables (masked input)
-  - [ ] Dynamic variables (timestamps, UUIDs)
-- [ ] **Advanced Authentication**
-  - [ ] OAuth 2.0 Flow (Authorization Code, Client Credentials)
-  - [ ] Token refresh handling
-  - [ ] OAuth 1.0, Digest Authentication, AWS Signature
-- [ ] **Response Caching**
+- [x] **Environment & Variables System**
+  - [x] Global vs environment variables
+  - [x] Secret variables (masked input)
+  - [x] Dynamic variables (timestamps, UUIDs)
+  - [x] Variable interpolation (`{{variable}}` syntax)
+- [x] **Advanced Authentication**
+  - [x] OAuth 2.0 Flow (Authorization Code, Client Credentials)
+  - [x] Token refresh handling
+  - [x] OAuth 1.0, Digest Authentication, AWS Signature
+  - [x] PKCE support for enhanced security
+- [x] **Response Caching**
+  - [x] Request-based caching with configurable expiration
+  - [x] Cache management (clear expired/all)
+  - [x] Cache statistics and monitoring
 
 ---
 

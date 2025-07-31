@@ -29,4 +29,20 @@ chrono = { version = "0.4.26", features = ["serde"] }
 uuid = { version = "1.4", features = ["v4", "serde"] }
 anyhow = "1.0"
 reqwest = { version = "0.12.22", features = ["json"] }
+# OAuth 2.0 support
+oauth2 = "4.4"
+# URL parsing and manipulation for OAuth redirects
+url = "2.4"
+# Random string generation for PKCE
+rand = "0.8"
+# Base64 encoding for PKCE
+base64 = "0.21"
+# SHA256 hashing for PKCE
+sha2 = "0.10"
+# HMAC for digest authentication and AWS signatures
+hmac = "0.12"
+# MD5 for digest authentication
+md5 = "0.7"
+# Hex encoding for digest auth
+hex = "0.4"
 

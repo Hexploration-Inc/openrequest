@@ -1,10 +1,12 @@
 import { useTabsStore } from "../../lib/stores/tabs";
 import { useCollectionsStore } from "../../lib/stores/collections";
 import { useHistoryStore } from "../../lib/stores/history";
+import { useEnvironmentsStore } from "../../lib/stores/environments";
 import { useToast } from "../ui/toast";
 import { useKeyboardShortcuts, KEYBOARD_SHORTCUTS } from "../../lib/hooks/useKeyboardShortcuts";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { VariableInput } from "../ui/variable-input";
 import { Select } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Send, Loader2, Save } from "lucide-react";
@@ -27,6 +29,7 @@ export function RequestBuilder() {
   const { getActiveTab, updateTabData, markTabAsUnsaved, markTabAsSaved } = useTabsStore();
   const { loadRequestsForCollection } = useCollectionsStore();
   const { addHistoryEntry } = useHistoryStore();
+  const { interpolateVariables } = useEnvironmentsStore();
   const { success, error } = useToast();
   
   const activeTab = getActiveTab();
@@ -71,33 +74,43 @@ export function RequestBuilder() {
     try {
       const startTime = Date.now();
       
-      // Convert params and headers to the format expected by backend
+      // Interpolate variables in URL
+      const interpolatedUrl = interpolateVariables(activeTab.url);
+      
+      // Convert params and headers to the format expected by backend, with variable interpolation
       const paramsObj: Record<string, string> = {};
       activeTab.params.filter(p => p.enabled && p.key.trim()).forEach(p => {
-        paramsObj[p.key] = p.value;
+        paramsObj[interpolateVariables(p.key)] = interpolateVariables(p.value);
       });
 
       const headersObj: Record<string, string> = {};
       activeTab.headers.filter(h => h.enabled && h.key.trim()).forEach(h => {
-        headersObj[h.key] = h.value;
+        headersObj[interpolateVariables(h.key)] = interpolateVariables(h.value);
       });
 
-      // Prepare auth data
+      // Prepare auth data with variable interpolation
       let authType: string | undefined;
       let authData: string | undefined;
       
       if (activeTab.auth.type !== 'none') {
         authType = activeTab.auth.type;
-        authData = JSON.stringify(activeTab.auth.data);
+        // Interpolate variables in auth data values
+        const interpolatedAuthData: Record<string, string> = {};
+        Object.entries(activeTab.auth.data).forEach(([key, value]) => {
+          interpolatedAuthData[key] = interpolateVariables(value);
+        });
+        authData = JSON.stringify(interpolatedAuthData);
       }
 
-      // Only include body for methods that support it
+      // Only include body for methods that support it, with variable interpolation
       const bodyAllowedMethods = ['POST', 'PUT', 'PATCH'];
-      const requestBody = bodyAllowedMethods.includes(activeTab.method) && activeTab.bodyContent ? activeTab.bodyContent : null;
+      const requestBody = bodyAllowedMethods.includes(activeTab.method) && activeTab.bodyContent 
+        ? interpolateVariables(activeTab.bodyContent) 
+        : null;
 
       const apiRequest = {
         method: activeTab.method,
-        url: activeTab.url,
+        url: interpolatedUrl,
         params: paramsObj,
         headers: headersObj,
         body: requestBody,
@@ -209,9 +222,9 @@ export function RequestBuilder() {
   return (
     <div className="h-full flex flex-col bg-white dark:bg-[#1f1f1f]">
 
-      {/* URL Bar */}
-      <div className="border-b border-gray-200 dark:border-[#404040] px-6 py-4 bg-gray-50 dark:bg-[#121212]">
-        <div className="flex gap-3 items-center">
+      {/* URL Bar - Simplified */}
+      <div className="border-b border-gray-200 dark:border-[#404040] px-4 py-3 bg-white dark:bg-[#1f1f1f]">
+        <div className="flex gap-2 items-center">
           {/* Method Selector */}
           <div className="shrink-0">
             <Select
@@ -227,59 +240,56 @@ export function RequestBuilder() {
 
           {/* URL Input */}
           <div className="flex-1 relative">
-            <Input
-              placeholder="Enter request URL (e.g., https://api.example.com/users)"
+            <VariableInput
+              placeholder="Enter request URL"
               value={activeTab.url}
-              onChange={(e) => {
-                updateTabData(activeTab.id, { url: e.target.value });
+              onChange={(value) => {
+                updateTabData(activeTab.id, { url: value });
                 markTabAsUnsaved(activeTab.id);
               }}
-              className="pr-24 font-mono text-sm border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:bg-[#2d2d2d] dark:text-[#e8eaed]"
+              className="font-mono text-sm border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:bg-[#2d2d2d] dark:text-[#e8eaed] h-9"
             />
           </div>
 
-          {/* Save Button - only show if request is loaded */}
-          {activeTab.requestId && (
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            {/* Save Button - only show if request is loaded */}
+            {activeTab.requestId && (
+              <Button
+                onClick={handleSaveRequest}
+                disabled={activeTab.isSaving}
+                variant="outline"
+                className="px-3 h-9 border-gray-300 dark:border-[#404040] hover:bg-gray-50 dark:hover:bg-[#383838] text-gray-700 dark:text-[#9aa0a6]"
+                size="sm"
+              >
+                {activeTab.isSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+
+            {/* Send Button */}
             <Button
-              onClick={handleSaveRequest}
-              disabled={activeTab.isSaving}
-              variant="outline"
-              className="px-6 border-gray-300 dark:border-[#404040] hover:bg-gray-50 dark:hover:bg-[#383838] text-gray-700 dark:text-[#9aa0a6] font-medium"
-              size="lg"
+              onClick={handleSendRequest}
+              disabled={!activeTab.url.trim() || activeTab.isLoading}
+              className="px-4 h-9 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
+              size="sm"
             >
-              {activeTab.isSaving ? (
+              {activeTab.isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  <span className="text-xs">Sending</span>
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save
+                  <Send className="h-4 w-4 mr-1" />
+                  <span className="text-xs">Send</span>
                 </>
               )}
             </Button>
-          )}
-
-          {/* Send Button */}
-          <Button
-            onClick={handleSendRequest}
-            disabled={!activeTab.url.trim() || activeTab.isLoading}
-            className="px-8 bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 text-white font-medium"
-            size="lg"
-          >
-            {activeTab.isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4 mr-2" />
-                Send
-              </>
-            )}
-          </Button>
+          </div>
         </div>
       </div>
 
@@ -300,29 +310,29 @@ export function RequestBuilder() {
           }}
           className="h-full flex flex-col"
         >
-          <div className="bg-white dark:bg-[#1f1f1f]">
-            <TabsList className="h-10 bg-transparent p-0 space-x-0 rounded-none justify-start">
+          <div className="bg-white dark:bg-[#1f1f1f] px-4">
+            <TabsList className="h-8 bg-transparent p-0 space-x-0 rounded-none justify-start">
               <TabsTrigger 
                 value="params" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                className="rounded-none border-b border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
               >
                 Params
               </TabsTrigger>
               <TabsTrigger 
                 value="headers"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                className="rounded-none border-b border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
               >
                 Headers
               </TabsTrigger>
               <TabsTrigger 
                 value="body"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                className="rounded-none border-b border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
               >
                 Body
               </TabsTrigger>
               <TabsTrigger 
                 value="auth"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-4 py-2 text-sm font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                className="rounded-none border-b border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-transparent hover:bg-gray-50 dark:hover:bg-[#383838] px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-[#9aa0a6] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
               >
                 Auth
               </TabsTrigger>

@@ -339,17 +339,18 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-[#1f1f1f]">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-100 dark:border-[#404040]">
+      {/* Header - Minimal */}
+      <div className="px-4 py-3 border-b border-slate-100 dark:border-[#404040]">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-slate-900 dark:text-[#e8eaed]">Collections</h1>
+          <h1 className="text-sm font-medium text-slate-700 dark:text-[#e8eaed]">Collections</h1>
           <Button
             size="sm"
             variant="ghost"
             onClick={() => setShowCreateCollection(true)}
-            className="h-8 w-8 p-0 rounded-lg hover:bg-slate-50 dark:hover:bg-[#383838] transition-colors"
+            className="h-6 w-6 p-0 rounded hover:bg-slate-50 dark:hover:bg-[#383838] transition-colors"
+            title="Create Collection"
           >
-            <Plus className="h-4 w-4 text-slate-600 dark:text-[#9aa0a6]" />
+            <Plus className="h-3.5 w-3.5 text-slate-500 dark:text-[#9aa0a6]" />
           </Button>
         </div>
       </div>
@@ -358,15 +359,15 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
       <div className="flex-1 overflow-y-auto py-2">
         {collections.map((collection) => (
           <div key={collection.id} className="mb-1">
-            {/* Collection Header */}
+            {/* Collection Header - Compact */}
             <div
-              className={`group flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-all hover:bg-slate-50 dark:hover:bg-[#383838] ${
+              className={`group flex items-center gap-2 px-3 py-2 mx-2 rounded transition-all hover:bg-slate-50 dark:hover:bg-[#383838] ${
                 selectedCollectionId === collection.id
                   ? "bg-blue-50 dark:bg-blue-900 border border-blue-100 dark:border-blue-800"
                   : ""
               }`}
             >
-              <div className="flex items-center gap-2 text-slate-400 dark:text-[#5f6368]">
+              <div className="flex items-center gap-1.5 text-slate-400 dark:text-[#5f6368]">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -375,12 +376,12 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                   className="p-0.5 hover:bg-slate-100 dark:hover:bg-[#404040] rounded"
                 >
                   {isCollectionExpanded(collection.id) ? (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-3.5 w-3.5" />
                   ) : (
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-3.5 w-3.5" />
                   )}
                 </button>
-                <Folder className={`h-4 w-4 ${selectedCollectionId === collection.id ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-[#5f6368]'}`} />
+                <Folder className={`h-3.5 w-3.5 ${selectedCollectionId === collection.id ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-[#5f6368]'}`} />
               </div>
               {editingCollectionId === collection.id ? (
                 <div className="flex-1 space-y-2">
@@ -431,8 +432,8 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                     onClick={() => selectCollection(collection.id)}
                     className="flex-1 min-w-0 text-left"
                   >
-                    <div className={`font-medium text-sm truncate ${
-                      selectedCollectionId === collection.id ? 'text-blue-900 dark:text-blue-100' : 'text-slate-900 dark:text-[#e8eaed]'
+                    <div className={`font-medium text-xs truncate ${
+                      selectedCollectionId === collection.id ? 'text-blue-900 dark:text-blue-100' : 'text-slate-700 dark:text-[#e8eaed]'
                     }`}>
                       {collection.name}
                     </div>
@@ -466,16 +467,16 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
               )}
             </div>
 
-            {/* Requests List */}
+            {/* Requests List - Compact */}
             {isCollectionExpanded(collection.id) && (
-              <div className="ml-6 space-y-1">
+              <div className="ml-5 space-y-0.5">
                 {getRequestsForCollection(collection.id).map((request) => (
                   <div
                     key={request.id}
-                    className="group flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg hover:bg-slate-50 dark:hover:bg-[#383838] transition-all"
+                    className="group flex items-center gap-2 px-3 py-1.5 mx-2 rounded hover:bg-slate-50 dark:hover:bg-[#383838] transition-all"
                   >
-                    <FileText className="h-3.5 w-3.5 text-slate-400 dark:text-[#5f6368] flex-shrink-0" />
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-[#404040] bg-slate-50 dark:bg-[#2a2a2a] ${
+                    <FileText className="h-3 w-3 text-slate-400 dark:text-[#5f6368] flex-shrink-0" />
+                    <span className={`px-1.5 py-0.5 text-xs font-medium rounded border border-slate-200 dark:border-[#404040] bg-slate-50 dark:bg-[#2a2a2a] ${
                         request.method === 'GET' ? 'text-emerald-600 dark:text-emerald-400' :
                         request.method === 'POST' ? 'text-blue-600 dark:text-blue-400' :
                         request.method === 'PUT' ? 'text-amber-600 dark:text-amber-400' :
@@ -518,7 +519,7 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                     ) : (
                       <>
                         <span 
-                          className="text-sm text-slate-700 dark:text-[#9aa0a6] truncate flex-1 font-medium cursor-pointer"
+                          className="text-xs text-slate-600 dark:text-[#9aa0a6] truncate flex-1 font-medium cursor-pointer"
                           onClick={() => openRequestInTab(request)}
                         >
                           {request.name}
@@ -550,15 +551,15 @@ export function CollectionsSidebar({ collapsed = false }: CollectionsSidebarProp
                   </div>
                 ))}
                 
-                {/* Add Request Button */}
-                <div className="px-6 py-2">
+                {/* Add Request Button - Minimal */}
+                <div className="px-4 py-1">
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="w-full justify-start text-xs h-8 text-slate-500 dark:text-[#9aa0a6] hover:text-slate-700 dark:hover:text-[#e8eaed] hover:bg-slate-50 dark:hover:bg-[#383838] transition-colors rounded-lg"
+                    className="w-full justify-start text-xs h-6 text-slate-500 dark:text-[#9aa0a6] hover:text-slate-700 dark:hover:text-[#e8eaed] hover:bg-slate-50 dark:hover:bg-[#383838] transition-colors rounded"
                     onClick={() => setShowCreateRequest(true)}
                   >
-                    <Plus className="h-3.5 w-3.5 mr-2" />
+                    <Plus className="h-3 w-3 mr-1.5" />
                     Add Request
                   </Button>
                 </div>
