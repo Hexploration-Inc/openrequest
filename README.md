@@ -69,22 +69,22 @@ Our backend, written in Rust, currently supports the following features for maki
 
 #### **Frontend**
 
-- [ ] Create basic UI layout structure
-- [ ] Set up state management (Zustand/Redux)
-- [ ] **Request Builder**
-  - [ ] URL input with autocomplete
-  - [ ] Headers management
-  - [ ] Request body editor (JSON, form-data, raw, binary)
-- [ ] **Response Viewer**
-  - [ ] Response body with syntax highlighting
-  - [ ] Response headers display
-  - [ ] Status codes and response time
-  - [ ] Response size tracking
-- [ ] **Collections Management**
-  - [ ] Create/edit/delete collections
-  - [ ] Organize requests in folders
-- [ ] **Authentication UI**
-  - [ ] UI for No Auth, Bearer Token, Basic Auth, API Key
+- [x] Create basic UI layout structure
+- [x] Set up state management (Zustand/Redux)
+- [x] **Request Builder**
+  - [x] URL input with autocomplete
+  - [x] Headers management
+  - [x] Request body editor (JSON, form-data, raw, binary)
+- [x] **Response Viewer**
+  - [x] Response body with syntax highlighting
+  - [x] Response headers display
+  - [x] Status codes and response time
+  - [x] Response size tracking
+- [x] **Collections Management**
+  - [x] Create/edit/delete collections
+  - [x] Organize requests in folders
+- [x] **Authentication UI**
+  - [x] UI for No Auth, Bearer Token, Basic Auth, API Key
 
 #### **Backend**
 
