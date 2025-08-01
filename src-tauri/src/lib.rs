@@ -587,6 +587,18 @@ async fn set_active_environment(
 }
 
 #[tauri::command]
+async fn clear_active_environment(
+    db_state: State<'_, DatabaseState>,
+) -> Result<(), String> {
+    let db = {
+        let db_guard = db_state.lock().unwrap();
+        db_guard.as_ref().ok_or("Database not initialized")?.clone()
+    };
+
+    db.clear_active_environment().await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn get_active_environment(
     db_state: State<'_, DatabaseState>,
 ) -> Result<Option<database::Environment>, String> {
@@ -830,6 +842,7 @@ pub fn run() {
             create_environment,
             get_environments,
             set_active_environment,
+            clear_active_environment,
             get_active_environment,
             update_environment,
             delete_environment,

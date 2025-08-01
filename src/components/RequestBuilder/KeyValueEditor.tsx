@@ -164,8 +164,7 @@ export function KeyValueEditor({
             <div className="px-2 py-2 flex items-center justify-center">
               <button
                 onClick={() => handleRemove(item.id)}
-                disabled={currentData.length === 1}
-                className="opacity-0 group-hover:opacity-100 w-4 h-4 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-[#383838] text-gray-400 dark:text-[#5f6368] hover:text-gray-600 dark:hover:text-[#9aa0a6] transition-all disabled:opacity-0 disabled:cursor-not-allowed"
+                className="opacity-0 group-hover:opacity-100 w-4 h-4 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-[#383838] text-gray-400 dark:text-[#5f6368] hover:text-gray-600 dark:hover:text-[#9aa0a6] transition-all"
               >
                 <X className="w-3 h-3" />
               </button>

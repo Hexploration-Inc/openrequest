@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useCollectionsStore } from "../../lib/stores/collections";
+import { useEnvironmentsStore } from "../../lib/stores/environments";
 import { useTabsStore } from "../../lib/stores/tabs";
 import { useUIStore } from "../../lib/stores/ui";
 import { useKeyboardShortcuts, KEYBOARD_SHORTCUTS } from "../../lib/hooks/useKeyboardShortcuts";
@@ -18,6 +19,7 @@ export function MainLayout() {
   const isDbInitialized = useCollectionsStore((state) => state.isDbInitialized);
   const collections = useCollectionsStore((state) => state.collections);
   const selectedCollectionId = useCollectionsStore((state) => state.selectedCollectionId);
+  const initializeEnvironments = useEnvironmentsStore((state) => state.initializeEnvironments);
   const { openNewTab, tabs, closeTab, getActiveTab } = useTabsStore();
   const { sidebarCollapsed, sidebarWidth, toggleSidebar, setSidebarCollapsed } = useUIStore();
   const { theme, toggleTheme } = useTheme();
@@ -63,15 +65,20 @@ export function MainLayout() {
     initializeDatabase()
       .then(() => {
         console.log("✅ MainLayout: Database initialized successfully");
+        console.log("🌍 MainLayout: Initializing environments...");
+        return initializeEnvironments();
+      })
+      .then(() => {
+        console.log("✅ MainLayout: Environments initialized successfully");
         // Open a new tab if no tabs are open
         if (tabs.length === 0) {
           openNewTab();
         }
       })
       .catch((error) => {
-        console.error("❌ MainLayout: Database initialization failed:", error);
+        console.error("❌ MainLayout: Initialization failed:", error);
       });
-  }, [initializeDatabase, openNewTab, tabs.length]);
+  }, [initializeDatabase, initializeEnvironments, openNewTab, tabs.length]);
 
   useEffect(() => {
     console.log("📊 MainLayout: State updated:", {

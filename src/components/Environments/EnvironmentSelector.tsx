@@ -102,7 +102,7 @@ export function EnvironmentSelector() {
                   )}
                 </>
               ) : (
-                <span className="text-gray-400 dark:text-[#5f6368]">None selected</span>
+                <span className="text-gray-400 dark:text-[#5f6368]">No Environment</span>
               )}
             </div>
             <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform ${

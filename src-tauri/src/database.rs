@@ -560,6 +560,19 @@ impl Database {
         })
     }
 
+    // 🎓 TEACHING: Clear active environment (deactivate all environments)
+    pub async fn clear_active_environment(&self) -> Result<()> {
+        let now = Utc::now();
+
+        // Deactivate all environments
+        sqlx::query("UPDATE environments SET is_active = FALSE, updated_at = ?")
+            .bind(now.to_rfc3339())
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
     // 🎓 TEACHING: Get environment by ID
     pub async fn get_environment_by_id(&self, id: &str) -> Result<Option<Environment>> {
         let row = sqlx::query("SELECT * FROM environments WHERE id = ?")

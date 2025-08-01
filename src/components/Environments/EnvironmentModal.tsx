@@ -24,12 +24,18 @@ export function EnvironmentModal({ isOpen, onClose, environmentId }: Environment
     updateEnvironment,
     deleteEnvironment,
     setGlobalVariables,
+    addVariableToEnvironment,
+    updateEnvironmentVariable,
+    deleteEnvironmentVariable,
+    addGlobalVariable,
+    updateGlobalVariable,
+    deleteGlobalVariable,
   } = useEnvironmentsStore();
 
   const [activeTab, setActiveTab] = useState('environments');
   const [selectedEnvironment, setSelectedEnvironment] = useState<string | null>(null);
   const [newEnvironmentName, setNewEnvironmentName] = useState('');
-  const [editingGlobalVariables, setEditingGlobalVariables] = useState<EnvironmentVariable[]>([]);
+  // No longer need local state for global variables since they're persisted directly
 
   const environment = useMemo(() => {
     return selectedEnvironment 
@@ -39,63 +45,140 @@ export function EnvironmentModal({ isOpen, onClose, environmentId }: Environment
 
   useEffect(() => {
     if (isOpen) {
-      setEditingGlobalVariables([...globalVariables]);
       if (environmentId) {
         setSelectedEnvironment(environmentId);
         setActiveTab('environments');
-      } else if (environments.length > 0) {
+      } else if (environments.length > 0 && !selectedEnvironment) {
+        // Only set to first environment if no environment is currently selected
         setSelectedEnvironment(environments[0].id);
       }
     }
-  }, [isOpen, environmentId, environments, globalVariables]);
+  }, [isOpen, environmentId]);
+
+  // Separate effect to handle when selectedEnvironment becomes invalid
+  useEffect(() => {
+    if (selectedEnvironment && environments.length > 0) {
+      const environmentExists = environments.some(env => env.id === selectedEnvironment);
+      if (!environmentExists) {
+        setSelectedEnvironment(environments[0].id);
+      }
+    }
+  }, [environments, selectedEnvironment]);
 
   const handleCreateEnvironment = async () => {
     if (!newEnvironmentName.trim()) return;
 
-    const newEnvironment: Environment = {
-      id: generateId(),
-      name: newEnvironmentName.trim(),
-      variables: []
-    };
-
-    await addEnvironment(newEnvironment);
-    setSelectedEnvironment(newEnvironment.id);
-    setNewEnvironmentName('');
+    try {
+      await addEnvironment(newEnvironmentName.trim());
+      setNewEnvironmentName('');
+    } catch (error) {
+      console.error('Failed to create environment:', error);
+    }
   };
 
   const handleDeleteEnvironment = async (id: string) => {
     if (selectedEnvironment === id) {
       setSelectedEnvironment(null);
     }
-    await deleteEnvironment(id);
-  };
-
-  const handleEnvironmentVariableChange = (variables: EnvironmentVariable[]) => {
-    if (environment) {
-      updateEnvironment(environment.id, { ...environment, variables });
+    try {
+      await deleteEnvironment(id);
+    } catch (error) {
+      console.error('Failed to delete environment:', error);
     }
   };
 
-  const handleSaveGlobalVariables = () => {
-    setGlobalVariables(editingGlobalVariables);
+  // Variable management callback functions for KeyValueEditor
+  const handleUpdateEnvironmentVariable = async (id: string, key: string, value: string, enabled: boolean) => {
+    try {
+      // Check if this is a placeholder variable by seeing if it starts with 'placeholder-'
+      if (id.startsWith('placeholder-')) {
+        // This is a placeholder variable, create a new one instead of updating
+        if (selectedEnvironment && (key.trim() || value.trim())) {
+          await addVariableToEnvironment(selectedEnvironment, key, value, false);
+        }
+      } else {
+        await updateEnvironmentVariable(id, { key, value });
+      }
+    } catch (error) {
+      console.error('Failed to update environment variable:', error);
+    }
+  };
+
+  const handleRemoveEnvironmentVariable = async (id: string) => {
+    try {
+      // Don't try to delete placeholder variables
+      if (!id.startsWith('placeholder-')) {
+        await deleteEnvironmentVariable(id);
+      }
+    } catch (error) {
+      console.error('Failed to remove environment variable:', error);
+    }
+  };
+
+  const handleAddEnvironmentVariable = async () => {
+    if (selectedEnvironment) {
+      try {
+        await addVariableToEnvironment(selectedEnvironment, '', '', false);
+      } catch (error) {
+        console.error('Failed to add environment variable:', error);
+      }
+    }
+  };
+
+  const handleUpdateGlobalVariable = async (id: string, key: string, value: string, enabled: boolean) => {
+    try {
+      // Check if this is a placeholder variable
+      if (id.startsWith('placeholder-')) {
+        // This is a placeholder variable, create a new one instead of updating
+        if (key.trim() || value.trim()) {
+          await addGlobalVariable(key, value, false);
+        }
+      } else {
+        await updateGlobalVariable(id, { key, value });
+      }
+    } catch (error) {
+      console.error('Failed to update global variable:', error);
+    }
+  };
+
+  const handleRemoveGlobalVariable = async (id: string) => {
+    try {
+      // Don't try to delete placeholder variables
+      if (!id.startsWith('placeholder-')) {
+        await deleteGlobalVariable(id);
+      }
+    } catch (error) {
+      console.error('Failed to remove global variable:', error);
+    }
+  };
+
+  const handleAddGlobalVariable = async () => {
+    try {
+      await addGlobalVariable('', '', false);
+    } catch (error) {
+      console.error('Failed to add global variable:', error);
+    }
+  };
+
+  const handleClose = () => {
     onClose();
   };
 
-  const toggleVariableSecrecy = (variableId: string, isEnvironmentVariable: boolean) => {
-    if (isEnvironmentVariable && environment) {
-      const updatedVariables = environment.variables.map(variable =>
-        variable.id === variableId 
-          ? { ...variable, isSecret: !variable.isSecret }
-          : variable
-      );
-      handleEnvironmentVariableChange(updatedVariables);
-    } else {
-      const updatedVariables = editingGlobalVariables.map(variable =>
-        variable.id === variableId 
-          ? { ...variable, isSecret: !variable.isSecret }
-          : variable
-      );
-      setEditingGlobalVariables(updatedVariables);
+  const toggleVariableSecrecy = async (variableId: string, isEnvironmentVariable: boolean) => {
+    try {
+      if (isEnvironmentVariable && environment) {
+        const variable = environment.variables.find(v => v.id === variableId);
+        if (variable) {
+          await updateEnvironmentVariable(variableId, { isSecret: !variable.isSecret });
+        }
+      } else {
+        const variable = globalVariables.find(v => v.id === variableId);
+        if (variable) {
+          await updateGlobalVariable(variableId, { isSecret: !variable.isSecret });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to toggle variable secrecy:', error);
     }
   };
 
@@ -205,8 +288,10 @@ export function EnvironmentModal({ isOpen, onClose, environmentId }: Environment
                 </div>
                 <div className="border border-gray-200 dark:border-[#404040] rounded-lg">
                   <KeyValueEditor
-                    data={environment.variables}
-                    onChange={handleEnvironmentVariableChange}
+                    data={environment.variables.length === 0 ? [{ id: 'placeholder-' + generateId(), key: '', value: '', enabled: true, isSecret: false }] : environment.variables}
+                    onAdd={handleAddEnvironmentVariable}
+                    onUpdate={handleUpdateEnvironmentVariable}
+                    onRemove={handleRemoveEnvironmentVariable}
                     showEnabled={true}
                     placeholder={{ key: 'Variable name', value: 'Variable value' }}
                     renderActions={(variable) => (
@@ -250,8 +335,10 @@ export function EnvironmentModal({ isOpen, onClose, environmentId }: Environment
 
             <div className="border border-gray-200 dark:border-[#404040] rounded-lg">
               <KeyValueEditor
-                data={editingGlobalVariables}
-                onChange={setEditingGlobalVariables}
+                data={globalVariables.length === 0 ? [{ id: 'placeholder-' + generateId(), key: '', value: '', enabled: true, isSecret: false }] : globalVariables}
+                onAdd={handleAddGlobalVariable}
+                onUpdate={handleUpdateGlobalVariable}
+                onRemove={handleRemoveGlobalVariable}
                 showEnabled={true}
                 placeholder={{ key: 'Variable name', value: 'Variable value' }}
                 renderActions={(variable) => (
@@ -272,11 +359,11 @@ export function EnvironmentModal({ isOpen, onClose, environmentId }: Environment
 
             <div className="flex justify-end pt-2">
               <Button 
-                onClick={handleSaveGlobalVariables}
+                onClick={handleClose}
                 size="sm"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                Save Global Variables
+                Close
               </Button>
             </div>
           </TabsContent>
