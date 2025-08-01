@@ -41,10 +41,28 @@ export interface ApiResponse {
 }
 
 export interface AuthConfig {
-  type: 'none' | 'bearer' | 'basic' | 'api-key';
+  type: 'none' | 'bearer' | 'basic' | 'api-key' | 'oauth2' | 'oauth1' | 'digest' | 'aws-signature';
   data: Record<string, string>;
 }
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
 
 export type BodyType = 'none' | 'json' | 'xml' | 'html' | 'text' | 'javascript' | 'form-data' | 'x-www-form-urlencoded';
+
+// Environment Management types
+export interface Environment {
+  id: string;
+  name: string;
+  variables: EnvironmentVariable[];
+  isActive?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EnvironmentVariable {
+  id: string;
+  key: string;
+  value: string;
+  enabled: boolean;
+  isSecret?: boolean;
+}

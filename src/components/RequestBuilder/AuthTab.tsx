@@ -11,6 +11,10 @@ const AUTH_TYPES = [
   { value: "bearer", label: "Bearer Token" },
   { value: "basic", label: "Basic Auth" },
   { value: "api-key", label: "API Key" },
+  { value: "oauth2", label: "OAuth 2.0" },
+  { value: "oauth1", label: "OAuth 1.0" },
+  { value: "digest", label: "Digest Auth" },
+  { value: "aws-signature", label: "AWS Signature" },
 ] as const;
 
 interface AuthTabProps {
@@ -140,6 +144,255 @@ export function AuthTab({ tabId }: AuthTabProps) {
                   className="w-full"
                 />
               </div>
+            </div>
+          </div>
+        );
+
+      case "oauth2":
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Grant Type
+                </label>
+                <Select
+                  value={activeTab.auth.data.grant_type || "authorization_code"}
+                  onValueChange={(value) => updateAuthData("grant_type", value)}
+                  options={[
+                    { value: "authorization_code", label: "Authorization Code" },
+                    { value: "client_credentials", label: "Client Credentials" },
+                    { value: "password", label: "Password" },
+                    { value: "implicit", label: "Implicit" }
+                  ]}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Access Token URL
+                </label>
+                <Input
+                  placeholder="https://oauth.example.com/token"
+                  value={activeTab.auth.data.access_token_url || ""}
+                  onChange={(e) => updateAuthData("access_token_url", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Client ID
+                </label>
+                <Input
+                  placeholder="Your client ID"
+                  value={activeTab.auth.data.client_id || ""}
+                  onChange={(e) => updateAuthData("client_id", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Client Secret
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Your client secret"
+                  value={activeTab.auth.data.client_secret || ""}
+                  onChange={(e) => updateAuthData("client_secret", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+            </div>
+            {activeTab.auth.data.grant_type === "authorization_code" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                    Authorization URL
+                  </label>
+                  <Input
+                    placeholder="https://oauth.example.com/auth"
+                    value={activeTab.auth.data.auth_url || ""}
+                    onChange={(e) => updateAuthData("auth_url", e.target.value)}
+                    className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                    Callback URL
+                  </label>
+                  <Input
+                    placeholder="http://localhost:8080/callback"
+                    value={activeTab.auth.data.callback_url || ""}
+                    onChange={(e) => updateAuthData("callback_url", e.target.value)}
+                    className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                  />
+                </div>
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                Scope
+              </label>
+              <Input
+                placeholder="read write"
+                value={activeTab.auth.data.scope || ""}
+                onChange={(e) => updateAuthData("scope", e.target.value)}
+                className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+              />
+            </div>
+          </div>
+        );
+
+      case "oauth1":
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Consumer Key
+                </label>
+                <Input
+                  placeholder="Your consumer key"
+                  value={activeTab.auth.data.consumer_key || ""}
+                  onChange={(e) => updateAuthData("consumer_key", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Consumer Secret
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Your consumer secret"
+                  value={activeTab.auth.data.consumer_secret || ""}
+                  onChange={(e) => updateAuthData("consumer_secret", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Access Token
+                </label>
+                <Input
+                  placeholder="Your access token"
+                  value={activeTab.auth.data.token || ""}
+                  onChange={(e) => updateAuthData("token", e.target.value)}
+                  className="font-mono bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Token Secret
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Your token secret"
+                  value={activeTab.auth.data.token_secret || ""}
+                  onChange={(e) => updateAuthData("token_secret", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case "digest":
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Username
+                </label>
+                <Input
+                  placeholder="Username"
+                  value={activeTab.auth.data.username || ""}
+                  onChange={(e) => updateAuthData("username", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Password
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={activeTab.auth.data.password || ""}
+                  onChange={(e) => updateAuthData("password", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case "aws-signature":
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Access Key ID
+                </label>
+                <Input
+                  placeholder="Your AWS access key ID"
+                  value={activeTab.auth.data.access_key || ""}
+                  onChange={(e) => updateAuthData("access_key", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Secret Access Key
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Your AWS secret access key"
+                  value={activeTab.auth.data.secret_key || ""}
+                  onChange={(e) => updateAuthData("secret_key", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Region
+                </label>
+                <Input
+                  placeholder="us-east-1"
+                  value={activeTab.auth.data.region || ""}
+                  onChange={(e) => updateAuthData("region", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                  Service
+                </label>
+                <Input
+                  placeholder="s3"
+                  value={activeTab.auth.data.service || ""}
+                  onChange={(e) => updateAuthData("service", e.target.value)}
+                  className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-[#9aa0a6] mb-2">
+                Session Token (Optional)
+              </label>
+              <Input
+                placeholder="Your AWS session token"
+                value={activeTab.auth.data.session_token || ""}
+                onChange={(e) => updateAuthData("session_token", e.target.value)}
+                className="bg-white dark:bg-[#2d2d2d] border-gray-300 dark:border-[#404040] focus:border-blue-500 focus:ring-blue-500 dark:text-[#e8eaed]"
+              />
             </div>
           </div>
         );
